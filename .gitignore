@@ -1,0 +1,9 @@
+.env
+.tox
+build/
+__pycache__/
+dist/
+*.egg-info/
+.coverage
+.vscode/
+config.yaml

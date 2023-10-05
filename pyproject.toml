@@ -1,0 +1,151 @@
+[build-system]
+requires = [
+  "setuptools >= 64.0.0"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ovh_exporter"
+description = "ovh_exporter tool"
+readme = "README.md"
+dynamic = ["version"]
+requires-python = ">=3.11"
+license = {text = "Apache-2.0"}
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Natural Language :: English",
+  "Environment :: Console",
+  "Topic :: Utilities",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11"
+]
+dependencies = [
+  "click==8.1.6",
+  "ovh",
+  "PyYAML",
+  "path-dict",
+  "requests",
+  "prometheus_client"
+]
+
+[[project.authors]]
+name = "Laurent Almeras"
+email = "lalmeras@gmail.com"
+
+[project.urls]
+repository = "https://github.com/lalmeras/ovh_exporter"
+changelog = "https://github.com/lalmeras/ovh_exporter/blob/main/README.md"
+
+[project.optional-dependencies]
+test = [
+  "types-requests",
+  "types-PyYAML",
+  "tox",
+  "mock>=2.0.0",
+  "pexpect>=4.2.1",
+  "pytest>=3.0.6",
+  "pytest-cov>=2.4.0",
+  "mypy",
+  "pylint",
+  "rope",
+  "black"
+]
+dev = [
+  "twine",
+  "tbump",
+  "ipdb",
+  "build",
+  "semver<3"
+]
+
+[project.scripts]
+ovh_exporter = "ovh_exporter.cli:main"
+
+[tools.setuptools]
+zip-safe = true
+py-modules = ["ovh_exporter"]
+
+[tool.setuptools.dynamic]
+version = {attr = "ovh_exporter.__version__"}
+
+[tool.pytest.ini_options]
+minversion = "7.1"
+addopts = "--cov-config .coveragerc --cov-report=xml --cov=."
+testpaths = [
+    "tests"
+]
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py{311},mypy,pylint
+isolated_build = True
+[gh-actions]
+python =
+    3.11: py311
+[testenv]
+setenv =
+    LC_ALL = en_US.utf-8
+    LANG = en_US.utf-8
+[py]
+commands =
+#   pytest --cov-fail-under 0 {posargs}
+[testenv:py{311}]
+extras =
+    test
+commands = {[py]commands}
+[testenv:mypy]
+deps =
+    mypy
+extras =
+    test
+commands =
+    mypy --config-file pyproject.toml
+[testenv:pylint]
+extras =
+    test
+commands =
+    pylint ovh_exporter
+"""
+
+[tool.pylint.main]
+fail-under = 10
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+files = "src/ovh_exporter/**/*.py"
+
+[[tool.mypy.overrides]]
+module = [
+  "path_dict",
+  "ovh"
+]
+ignore_missing_imports = true
+
+[tool.tbump.version]
+current = "0.1.0"
+regex = '''
+  (?P<major>\d+)
+  \.
+  (?P<minor>\d+)
+  \.
+  (?P<patch>\d+)
+  (\.
+  (?P<extra>dev\d+)
+  )?
+'''
+
+[tool.tbump.git]
+message_template = "Bump to {new_version}"
+tag_template = "v{new_version}"
+
+[[tool.tbump.file]]
+src = "src/ovh_exporter/__init__.py"
+
+[tool.rope]
+split_imports = true
