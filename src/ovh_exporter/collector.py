@@ -373,7 +373,7 @@ class OvhCollector:
         yield keymanager_max_count_metric
 
     def _collect_storages(self, storages):
-        """Collect instance usage information."""
+        """Collect storage usage information."""
         labels = ["service_id", "region", "storage_id", "storage_name", "storage_type"]
         storage_size_bytes_metric = GaugeMetricFamily(
             "ovh_storage_size_bytes",
@@ -448,33 +448,6 @@ class OvhCollector:
         yield ovh_usage_instance_hours
         yield ovh_usage_instance_price
 
-    def _collect_storages(self, storages):
-        """Collect instance usage information."""
-        labels = ["service_id", "region", "storage_id", "storage_name", "storage_type"]
-        storage_size_bytes_metric = GaugeMetricFamily(
-            "ovh_storage_size_bytes",
-            "Storage size in bytes",
-            labels=labels
-        )
-        storage_object_count_metric = GaugeMetricFamily(
-            "ovh_storage_object_count",
-            "Storage object count",
-            labels=labels
-        )
-        for storage in storages:
-            storage_size_bytes_metric.add_metric(
-                [self._service_id,
-                    storage["region"], storage["id"], storage["name"], storage["containerType"]],
-                storage["storedBytes"]
-            )
-            storage_object_count_metric.add_metric(
-                [self._service_id,
-                    storage["region"], storage["id"], storage["name"], storage["containerType"]],
-                storage["storedObjects"]
-            )
-        yield storage_object_count_metric
-        yield storage_size_bytes_metric
-
     def _collect_volume_usage(self, usages):
         """Collect volume usage information."""
         volume_labels = ["service_id", "region", "volume_id", "flavor"]
@@ -512,11 +485,11 @@ class OvhCollector:
         """Collect storage usage information."""
         storage_labels = ["service_id", "region", "flavor"]
         ovh_usage_storage_gb_hours = GaugeMetricFamily(
-            "ovh_usage_volume_gb_hours",
+            "ovh_usage_storage_gb_hours",
             "Storage usage in gb x hours",
             labels=storage_labels)
         ovh_usage_storage_price = GaugeMetricFamily(
-            "ovh_usage_volume_price",
+            "ovh_usage_storage_price",
             "Storage usage price",
             labels=storage_labels)
         ovh_usage_storage_bandwidth_external_outgoing_gb_hours = GaugeMetricFamily(
