@@ -28,7 +28,8 @@ dependencies = [
   "PyYAML",
   "path-dict",
   "requests",
-  "prometheus_client"
+  "prometheus_client",
+  "python-dotenv"
 ]
 
 [[project.authors]]
