@@ -52,9 +52,8 @@ def ovh(ctx):
 def server(ctx):
     """Exporter startup"""
     config_dict = ctx.obj
-    service_id = config_dict["services"][0]["id"]
     client = build_client(Configuration.load(config_dict["ovh"]))
-    REGISTRY.register(OvhCollector(client, service_id))
+    REGISTRY.register(OvhCollector(client, config_dict["services"]))
     start_http_server(9100)
     while True:
         time.sleep(5)
