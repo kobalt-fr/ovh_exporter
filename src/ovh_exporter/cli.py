@@ -27,9 +27,11 @@ def main(ctx):
         # Set on context
         ctx.obj = config_dict
         # Load environment file if provided
-        if "env_file" in config_dict and \
-                config_dict["env_file"] and \
-                os.path.exists(config_dict["env_file"]):
+        if (
+            "env_file" in config_dict
+            and config_dict["env_file"]
+            and os.path.exists(config_dict["env_file"])
+        ):
             env_file = config_dict["env_file"]
             log.info("Loading environment file %s", env_file)
             dotenv.load_dotenv(env_file)

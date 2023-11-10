@@ -10,12 +10,13 @@ from .logger import log
 
 class Endpoint(Enum):
     """API Enpoints."""
-    PROJECT  = "/cloud/project/{service_id}"
-    QUOTA    = "/cloud/project/{service_id}/quota"
+
+    PROJECT = "/cloud/project/{service_id}"
+    QUOTA = "/cloud/project/{service_id}/quota"
     INSTANCE = "/cloud/project/{service_id}/instance"
-    STORAGE  = "/cloud/project/{service_id}/storage"
-    USAGE    = "/cloud/project/{service_id}/usage/current"
-    VOLUME   = "/cloud/project/{service_id}/volume"
+    STORAGE = "/cloud/project/{service_id}/storage"
+    USAGE = "/cloud/project/{service_id}/usage/current"
+    VOLUME = "/cloud/project/{service_id}/volume"
 
     def __init__(self, url):
         self.url = url
@@ -23,17 +24,18 @@ class Endpoint(Enum):
 
 class MetricFamily(Enum):
     """Metric families selection."""
+
     PROCESS: List[Endpoint] = []
-    GC: List[Endpoint]      = []
-    PLATFORM: List[Endpoint]= []
-    USAGE_VOLUME            = [Endpoint.USAGE]
-    USAGE_STORAGE           = [Endpoint.USAGE]
-    USAGE_INSTANCE          = [Endpoint.USAGE]
-    QUOTA_VOLUME            = [Endpoint.QUOTA]
-    QUOTA_INSTANCE          = [Endpoint.USAGE]
-    QUOTA_NETWORK           = [Endpoint.USAGE]
-    QUOTA_LB                = [Endpoint.USAGE]
-    QUOTA_KEYMANAGER        = [Endpoint.USAGE]
+    GC: List[Endpoint] = []
+    PLATFORM: List[Endpoint] = []
+    USAGE_VOLUME = [Endpoint.USAGE]
+    USAGE_STORAGE = [Endpoint.USAGE]
+    USAGE_INSTANCE = [Endpoint.USAGE]
+    QUOTA_VOLUME = [Endpoint.QUOTA]
+    QUOTA_INSTANCE = [Endpoint.USAGE]
+    QUOTA_NETWORK = [Endpoint.USAGE]
+    QUOTA_LB = [Endpoint.USAGE]
+    QUOTA_KEYMANAGER = [Endpoint.USAGE]
 
     def __init__(self, endpoints: List[Endpoint]):
         self.endpoints = endpoints
@@ -42,6 +44,7 @@ class MetricFamily(Enum):
 # pylint: disable=too-many-instance-attributes,too-few-public-methods
 class Metrics:
     """Metrics wrapper."""
+
     # pylint: disable=too-many-statements
     def __init__(self):
         # Storage
@@ -49,169 +52,155 @@ class Metrics:
         self.ovh_usage_storage_gb_hours = GaugeMetricFamily(
             "ovh_usage_storage_gb_hours",
             "Storage usage in gb x hours",
-            labels=storage_usage_labels)
+            labels=storage_usage_labels,
+        )
         self.ovh_usage_storage_price = GaugeMetricFamily(
             "ovh_usage_storage_price",
             "Storage usage price",
-            labels=storage_usage_labels)
+            labels=storage_usage_labels,
+        )
         self.ovh_usage_storage_bandwidth_external_outgoing_gb_hours = GaugeMetricFamily(
             "ovh_usage_storage_bandwidth_external_outgoing_gb_hours",
             "Storage usage external outgoing bandwidth in gb x hours",
-            labels=storage_usage_labels)
+            labels=storage_usage_labels,
+        )
         self.ovh_usage_storage_bandwidth_external_outgoing_price = GaugeMetricFamily(
             "ovh_usage_storage_bandwidth_external_outgoing_price",
             "Storage usage external outgoing bandwidth price",
-            labels=storage_usage_labels)
+            labels=storage_usage_labels,
+        )
         self.ovh_usage_storage_bandwidth_internal_outgoing_gb_hours = GaugeMetricFamily(
             "ovh_usage_storage_bandwidth_internal_outgoing_gb_hours",
             "Storage usage external outgoing bandwidth in gb x hours",
-            labels=storage_usage_labels)
+            labels=storage_usage_labels,
+        )
         self.ovh_usage_storage_bandwidth_internal_outgoing_price = GaugeMetricFamily(
             "ovh_usage_storage_bandwidth_internal_outgoing_price",
             "Storage usage external outgoing bandwidth price",
-            labels=storage_usage_labels)
+            labels=storage_usage_labels,
+        )
         self.ovh_usage_storage_bandwidth_external_incoming_gb_hours = GaugeMetricFamily(
             "ovh_usage_storage_bandwidth_external_incoming_gb_hours",
             "Storage usage external incoming bandwidth in gb x hours",
-            labels=storage_usage_labels)
+            labels=storage_usage_labels,
+        )
         self.ovh_usage_storage_bandwidth_external_incoming_price = GaugeMetricFamily(
             "ovh_usage_storage_bandwidth_external_incoming_price",
             "Storage usage external incoming bandwidth price",
-            labels=storage_usage_labels)
+            labels=storage_usage_labels,
+        )
         self.ovh_usage_storage_bandwidth_internal_incoming_gb_hours = GaugeMetricFamily(
             "ovh_usage_storage_bandwidth_internal_incoming_gb_hours",
             "Storage usage external incoming bandwidth in gb x hours",
-            labels=storage_usage_labels)
+            labels=storage_usage_labels,
+        )
         self.ovh_usage_storage_bandwidth_internal_incoming_price = GaugeMetricFamily(
             "ovh_usage_storage_bandwidth_internal_incoming_price",
             "Storage usage external incoming bandwidth price",
-            labels=storage_usage_labels)
+            labels=storage_usage_labels,
+        )
 
         # Volumes
         volume_labels = ["service_id", "volume_id", "name", "region", "type"]
         self.ovh_volume_size_gb = GaugeMetricFamily(
-            "ovh_volume_size_gb",
-            "Volume size in Gb",
-            labels=volume_labels
+            "ovh_volume_size_gb", "Volume size in Gb", labels=volume_labels
         )
 
         # Volumes quota
         volume_quota_labels = ["service_id", "region"]
         self.ovh_quota_volume_gb = GaugeMetricFamily(
-            "ovh_quota_volume_gb",
-            "Volume gigabytes",
-            labels=volume_quota_labels
+            "ovh_quota_volume_gb", "Volume gigabytes", labels=volume_quota_labels
         )
         self.ovh_quota_volume_max_gb = GaugeMetricFamily(
             "ovh_quota_volume_max_gb",
             "Volume max gigabytes",
-            labels=volume_quota_labels
+            labels=volume_quota_labels,
         )
         self.ovh_quota_volume_backup_gb = GaugeMetricFamily(
             "ovh_quota_volume_backup_gb",
             "Volume backup gigabytes",
-            labels=volume_quota_labels
+            labels=volume_quota_labels,
         )
         self.ovh_quota_volume_backup_max_gb = GaugeMetricFamily(
             "ovh_quota_volume_backup_max_gb",
             "Volume backup max gigabytes",
-            labels=volume_quota_labels
+            labels=volume_quota_labels,
         )
         self.ovh_quota_volume_count = GaugeMetricFamily(
-            "ovh_quota_volume_count",
-            "Volume count",
-            labels=volume_quota_labels
+            "ovh_quota_volume_count", "Volume count", labels=volume_quota_labels
         )
         self.ovh_quota_volume_max_count = GaugeMetricFamily(
-            "ovh_quota_volume_max_count",
-            "Volume max count",
-            labels=volume_quota_labels
+            "ovh_quota_volume_max_count", "Volume max count", labels=volume_quota_labels
         )
         self.ovh_quota_volume_backup_count = GaugeMetricFamily(
-            "ovh_quota_volume_backup_count",
-            "Volume count",
-            labels=volume_quota_labels
+            "ovh_quota_volume_backup_count", "Volume count", labels=volume_quota_labels
         )
         self.ovh_quota_volume_backup_max_count = GaugeMetricFamily(
             "ovh_quota_volume_backup_max_count",
             "Volume max count",
-            labels=volume_quota_labels
+            labels=volume_quota_labels,
         )
 
         # Instances
         instance_labels = ["service_id", "region"]
         self.ovh_quota_instance_count = GaugeMetricFamily(
-            "ovh_quota_instance_count",
-            "Instance count",
-            labels=instance_labels
+            "ovh_quota_instance_count", "Instance count", labels=instance_labels
         )
         self.ovh_quota_instance_max_count = GaugeMetricFamily(
-            "ovh_quota_instance_max_count",
-            "Instance max count",
-            labels=instance_labels
+            "ovh_quota_instance_max_count", "Instance max count", labels=instance_labels
         )
         self.ovh_quota_cpu_count = GaugeMetricFamily(
-            "ovh_quota_cpu_count",
-            "CPU count",
-            labels=instance_labels
+            "ovh_quota_cpu_count", "CPU count", labels=instance_labels
         )
         self.ovh_quota_cpu_max_count = GaugeMetricFamily(
-            "ovh_quota_cpu_max_count",
-            "CPU max count",
-            labels=instance_labels
+            "ovh_quota_cpu_max_count", "CPU max count", labels=instance_labels
         )
         self.ovh_quota_ram_gb = GaugeMetricFamily(
-            "ovh_quota_ram_gb",
-            "RAM count",
-            labels=instance_labels
+            "ovh_quota_ram_gb", "RAM count", labels=instance_labels
         )
         self.ovh_quota_ram_max_gb = GaugeMetricFamily(
-            "ovh_quota_ram_max_gb",
-            "RAM max count",
-            labels=instance_labels
+            "ovh_quota_ram_max_gb", "RAM max count", labels=instance_labels
         )
 
         # Network quota
         network_quota_labels = ["service_id", "region"]
         self.ovh_quota_network_count = GaugeMetricFamily(
-            "ovh_quota_network_count",
-            "Network count",
-            labels=network_quota_labels
+            "ovh_quota_network_count", "Network count", labels=network_quota_labels
         )
         self.ovh_quota_network_max_count = GaugeMetricFamily(
             "ovh_quota_network_max_count",
             "Network max count",
-            labels=network_quota_labels
+            labels=network_quota_labels,
         )
         self.ovh_quota_network_subnet_count = GaugeMetricFamily(
             "ovh_quota_network_subnet_count",
             "Network subnet count",
-            labels=network_quota_labels
+            labels=network_quota_labels,
         )
         self.ovh_quota_network_subnet_max_count = GaugeMetricFamily(
             "ovh_quota_network_subnet_max_count",
             "Network subnet max count",
-            labels=network_quota_labels
+            labels=network_quota_labels,
         )
         self.ovh_quota_network_floating_ip_count = GaugeMetricFamily(
             "ovh_quota_network_floating_ip_count",
             "Network floating IP count",
-            labels=network_quota_labels
+            labels=network_quota_labels,
         )
         self.ovh_quota_network_floating_ip_max_count = GaugeMetricFamily(
             "ovh_quota_network_floating_ip_max_count",
             "Network floating IP max count",
-            labels=network_quota_labels
+            labels=network_quota_labels,
         )
         self.ovh_quota_network_gateway_count = GaugeMetricFamily(
             "ovh_quota_network_gateway_count",
             "Network gateway count",
-            labels=network_quota_labels
+            labels=network_quota_labels,
         )
         self.ovh_quota_network_gateway_max_count = GaugeMetricFamily(
             "ovh_quota_network_gateway_max_count",
             "Network gateway max count",
-            labels=network_quota_labels
+            labels=network_quota_labels,
         )
 
         # load balancer quota
@@ -219,12 +208,12 @@ class Metrics:
         self.ovh_quota_load_balancer_count = GaugeMetricFamily(
             "ovh_quota_load_balancer_count",
             "Load balancer count",
-            labels=load_balancer_quota_labels
+            labels=load_balancer_quota_labels,
         )
         self.ovh_quota_load_balancer_max_count = GaugeMetricFamily(
             "ovh_quota_load_balancer_max_count",
             "Load balancer max count",
-            labels=load_balancer_quota_labels
+            labels=load_balancer_quota_labels,
         )
 
         # keymanager quota
@@ -232,48 +221,58 @@ class Metrics:
         self.ovh_quota_keymanager_secret_count = GaugeMetricFamily(
             "ovh_quota_keymanager_secret_count",
             "Key manager count",
-            labels=keymanager_labels
+            labels=keymanager_labels,
         )
         self.ovh_quota_keymanager_secret_max_count = GaugeMetricFamily(
             "ovh_quota_keymanager_secret_max_count",
             "Key manager max count",
-            labels=keymanager_labels
+            labels=keymanager_labels,
         )
 
         # storage
-        storage_labels = ["service_id", "region", "storage_id", "storage_name", "storage_type"]
+        storage_labels = [
+            "service_id",
+            "region",
+            "storage_id",
+            "storage_name",
+            "storage_type",
+        ]
         self.ovh_storage_size_bytes = GaugeMetricFamily(
-            "ovh_storage_size_bytes",
-            "Storage size in bytes",
-            labels=storage_labels
+            "ovh_storage_size_bytes", "Storage size in bytes", labels=storage_labels
         )
         self.ovh_storage_object_count = GaugeMetricFamily(
-            "ovh_storage_object_count",
-            "Storage object count",
-            labels=storage_labels
+            "ovh_storage_object_count", "Storage object count", labels=storage_labels
         )
 
         # instance usage
-        instance_usage_labels = ["service_id", "region", "instance_id", "type", "flavor"]
+        instance_usage_labels = [
+            "service_id",
+            "region",
+            "instance_id",
+            "type",
+            "flavor",
+        ]
         self.ovh_usage_instance_hours = GaugeMetricFamily(
             "ovh_usage_instance_hours",
             "Instance usage in hours",
-            labels=instance_usage_labels)
+            labels=instance_usage_labels,
+        )
         self.ovh_usage_instance_price = GaugeMetricFamily(
             "ovh_usage_instance_price",
             "Instance usage price",
-            labels=instance_usage_labels)
+            labels=instance_usage_labels,
+        )
 
         # volume usage
         volume_usage_labels = ["service_id", "region", "volume_id", "flavor"]
         self.ovh_usage_volume_gb_hours = GaugeMetricFamily(
             "ovh_usage_volume_gb_hours",
             "Volume usage in gb x hours",
-            labels=volume_usage_labels)
+            labels=volume_usage_labels,
+        )
         self.ovh_usage_volume_price = GaugeMetricFamily(
-            "",
-            "Volume usage price",
-            labels=volume_usage_labels)
+            "", "Volume usage price", labels=volume_usage_labels
+        )
 
     # pylint: disable=too-many-statements
     def do_yield(self):
@@ -333,6 +332,7 @@ class Metrics:
 # pylint: disable=too-few-public-methods
 class OvhCollector:
     """OVH collector."""
+
     def __init__(self, client: ovh.Client, services: List):
         self._client = client
         self._services = services
@@ -365,9 +365,14 @@ class OvhCollector:
             try:
                 gauge_value = int(volume["size"])
                 metrics.ovh_volume_size_gb.add_metric(
-                    [service["id"],
-                     volume["id"], volume["name"], volume["region"], volume["type"]],
-                    gauge_value
+                    [
+                        service["id"],
+                        volume["id"],
+                        volume["name"],
+                        volume["region"],
+                        volume["type"],
+                    ],
+                    gauge_value,
                 )
             except (TypeError, ValueError):
                 log.warning("Volume %s ignored as size is missing", volume["id"])
@@ -378,34 +383,22 @@ class OvhCollector:
             if not "instance" in quota:
                 return
             metrics.ovh_quota_instance_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["instance"]["usedInstances"]
+                [service["id"], quota["region"]], quota["instance"]["usedInstances"]
             )
             metrics.ovh_quota_instance_max_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["instance"]["maxInstances"]
+                [service["id"], quota["region"]], quota["instance"]["maxInstances"]
             )
             metrics.ovh_quota_cpu_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["instance"]["usedCores"]
+                [service["id"], quota["region"]], quota["instance"]["usedCores"]
             )
             metrics.ovh_quota_cpu_max_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["instance"]["maxCores"]
+                [service["id"], quota["region"]], quota["instance"]["maxCores"]
             )
             metrics.ovh_quota_ram_gb.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["instance"]["usedRAM"]
+                [service["id"], quota["region"]], quota["instance"]["usedRAM"]
             )
             metrics.ovh_quota_ram_max_gb.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["instance"]["maxRam"]
+                [service["id"], quota["region"]], quota["instance"]["maxRam"]
             )
 
     def _collect_volume_quota(self, metrics: Metrics, service, quotas):
@@ -414,44 +407,29 @@ class OvhCollector:
             if not "volume" in quota:
                 return
             metrics.ovh_quota_volume_gb.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["volume"]["usedGigabytes"]
+                [service["id"], quota["region"]], quota["volume"]["usedGigabytes"]
             )
             metrics.ovh_quota_volume_max_gb.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["volume"]["maxGigabytes"]
+                [service["id"], quota["region"]], quota["volume"]["maxGigabytes"]
             )
             metrics.ovh_quota_volume_backup_gb.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["volume"]["usedBackupGigabytes"]
+                [service["id"], quota["region"]], quota["volume"]["usedBackupGigabytes"]
             )
             metrics.ovh_quota_volume_backup_max_gb.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["volume"]["maxBackupGigabytes"]
+                [service["id"], quota["region"]], quota["volume"]["maxBackupGigabytes"]
             )
             metrics.ovh_quota_volume_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["volume"]["volumeCount"]
+                [service["id"], quota["region"]], quota["volume"]["volumeCount"]
             )
             metrics.ovh_quota_volume_max_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["volume"]["maxVolumeCount"]
+                [service["id"], quota["region"]], quota["volume"]["maxVolumeCount"]
             )
             metrics.ovh_quota_volume_backup_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["volume"]["volumeBackupCount"]
+                [service["id"], quota["region"]], quota["volume"]["volumeBackupCount"]
             )
             metrics.ovh_quota_volume_backup_max_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["volume"]["maxVolumeBackupCount"]
+                [service["id"], quota["region"]],
+                quota["volume"]["maxVolumeBackupCount"],
             )
 
     def _collect_network_quota(self, metrics: Metrics, service, quotas):
@@ -460,44 +438,28 @@ class OvhCollector:
             if not "network" in quota:
                 return
             metrics.ovh_quota_network_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["network"]["usedNetworks"]
+                [service["id"], quota["region"]], quota["network"]["usedNetworks"]
             )
             metrics.ovh_quota_network_max_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["network"]["maxNetworks"]
+                [service["id"], quota["region"]], quota["network"]["maxNetworks"]
             )
             metrics.ovh_quota_network_subnet_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["network"]["usedSubnets"]
+                [service["id"], quota["region"]], quota["network"]["usedSubnets"]
             )
             metrics.ovh_quota_network_subnet_max_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["network"]["maxSubnets"]
+                [service["id"], quota["region"]], quota["network"]["maxSubnets"]
             )
             metrics.ovh_quota_network_floating_ip_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["network"]["usedFloatingIPs"]
+                [service["id"], quota["region"]], quota["network"]["usedFloatingIPs"]
             )
             metrics.ovh_quota_network_floating_ip_max_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["network"]["maxFloatingIPs"]
+                [service["id"], quota["region"]], quota["network"]["maxFloatingIPs"]
             )
             metrics.ovh_quota_network_gateway_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["network"]["usedGateways"]
+                [service["id"], quota["region"]], quota["network"]["usedGateways"]
             )
             metrics.ovh_quota_network_gateway_max_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["network"]["maxGateways"]
+                [service["id"], quota["region"]], quota["network"]["maxGateways"]
             )
 
     def _collect_load_balancer_quota(self, metrics: Metrics, service, quotas):
@@ -506,14 +468,12 @@ class OvhCollector:
             if not "loadBalancer" in quota:
                 return
             metrics.ovh_quota_load_balancer_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["loadBalancer"]["usedLoadBalancers"]
+                [service["id"], quota["region"]],
+                quota["loadBalancer"]["usedLoadBalancers"],
             )
             metrics.ovh_quota_load_balancer_max_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["loadBalancer"]["maxLoadBalancers"]
+                [service["id"], quota["region"]],
+                quota["loadBalancer"]["maxLoadBalancers"],
             )
 
     def _collect_keymanager_quota(self, metrics: Metrics, service, quotas):
@@ -522,28 +482,34 @@ class OvhCollector:
             if not "keymanager" in quota:
                 return
             metrics.ovh_quota_keymanager_secret_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["keymanager"]["usedSecrets"]
+                [service["id"], quota["region"]], quota["keymanager"]["usedSecrets"]
             )
             metrics.ovh_quota_keymanager_secret_max_count.add_metric(
-                [service["id"],
-                quota["region"]],
-                quota["keymanager"]["maxSecrets"]
+                [service["id"], quota["region"]], quota["keymanager"]["maxSecrets"]
             )
 
     def _collect_storages(self, metrics: Metrics, service, storages):
         """Collect storage usage information."""
         for storage in storages:
             metrics.ovh_storage_size_bytes.add_metric(
-                [service["id"],
-                    storage["region"], storage["id"], storage["name"], storage["containerType"]],
-                storage["storedBytes"]
+                [
+                    service["id"],
+                    storage["region"],
+                    storage["id"],
+                    storage["name"],
+                    storage["containerType"],
+                ],
+                storage["storedBytes"],
             )
             metrics.ovh_storage_object_count.add_metric(
-                [service["id"],
-                    storage["region"], storage["id"], storage["name"], storage["containerType"]],
-                storage["storedObjects"]
+                [
+                    service["id"],
+                    storage["region"],
+                    storage["id"],
+                    storage["name"],
+                    storage["containerType"],
+                ],
+                storage["storedObjects"],
             )
 
     def _collect_instance_usage(self, metrics: Metrics, service, usages):
@@ -556,14 +522,10 @@ class OvhCollector:
                     price = instance["totalPrice"]
                     instance_id = instance["instanceId"]
                     metrics.ovh_usage_instance_hours.add_metric(
-                        [service["id"],
-                            region, instance_id, "hourly", flavor],
-                        hours
+                        [service["id"], region, instance_id, "hourly", flavor], hours
                     )
                     metrics.ovh_usage_instance_price.add_metric(
-                        [service["id"],
-                            region, instance_id, "hourly", flavor],
-                        price
+                        [service["id"], region, instance_id, "hourly", flavor], price
                     )
         if "monthlyUsage" in usages:
             for group in usages["monthlyUsage"]["instance"]:
@@ -574,14 +536,10 @@ class OvhCollector:
                     price = instance["totalPrice"]
                     instance_id = instance["instanceId"]
                     metrics.ovh_usage_instance_hours.add_metric(
-                        [service["id"],
-                            region, instance_id, "monthly", flavor],
-                        hours
+                        [service["id"], region, instance_id, "monthly", flavor], hours
                     )
                     metrics.ovh_usage_instance_price.add_metric(
-                        [service["id"],
-                            region, instance_id, "monthly", flavor],
-                        price
+                        [service["id"], region, instance_id, "monthly", flavor], price
                     )
 
     def _collect_volume_usage(self, metrics: Metrics, service, usages):
@@ -595,14 +553,10 @@ class OvhCollector:
                     price = volume["totalPrice"]
                     instance_id = volume["volumeId"]
                     metrics.ovh_usage_volume_gb_hours.add_metric(
-                        [service["id"],
-                            region, instance_id, flavor],
-                        hours
+                        [service["id"], region, instance_id, flavor], hours
                     )
                     metrics.ovh_usage_volume_price.add_metric(
-                        [service["id"],
-                            region, instance_id, flavor],
-                        price
+                        [service["id"], region, instance_id, flavor], price
                     )
 
     # pylint: disable=too-many-locals,too-many-statements
@@ -630,64 +584,52 @@ class OvhCollector:
                 external_outgoing_gb = 0
                 external_outgoing_price = 0
             if storage.get("incomingInternalBandwidth", None):
-                internal_incoming_gb = storage["incomingInternalBandwidth"]["quantity"]["value"]
-                internal_incoming_price = storage["incomingInternalBandwidth"]["totalPrice"]
+                internal_incoming_gb = storage["incomingInternalBandwidth"]["quantity"][
+                    "value"
+                ]
+                internal_incoming_price = storage["incomingInternalBandwidth"][
+                    "totalPrice"
+                ]
             else:
                 internal_incoming_gb = 0
                 internal_incoming_price = 0
             if storage.get("outgoingInternalBandwidth", None):
-                internal_outgoing_gb = storage["outgoingInternalBandwidth"]["quantity"]["value"]
-                internal_outgoing_price = storage["outgoingInternalBandwidth"]["totalPrice"]
+                internal_outgoing_gb = storage["outgoingInternalBandwidth"]["quantity"][
+                    "value"
+                ]
+                internal_outgoing_price = storage["outgoingInternalBandwidth"][
+                    "totalPrice"
+                ]
             else:
                 internal_outgoing_gb = 0
                 internal_outgoing_price = 0
             metrics.ovh_usage_storage_gb_hours.add_metric(
-                [service["id"],
-                    region, flavor],
-                hours
+                [service["id"], region, flavor], hours
             )
             metrics.ovh_usage_storage_price.add_metric(
-                [service["id"],
-                    region, flavor],
-                price
+                [service["id"], region, flavor], price
             )
             metrics.ovh_usage_storage_bandwidth_external_incoming_gb_hours.add_metric(
-                [service["id"],
-                    region, flavor],
-                external_incoming_gb
+                [service["id"], region, flavor], external_incoming_gb
             )
             metrics.ovh_usage_storage_bandwidth_external_incoming_price.add_metric(
-                [service["id"],
-                    region, flavor],
-                external_incoming_price
+                [service["id"], region, flavor], external_incoming_price
             )
             metrics.ovh_usage_storage_bandwidth_external_outgoing_gb_hours.add_metric(
-                [service["id"],
-                    region, flavor],
-                external_outgoing_gb
+                [service["id"], region, flavor], external_outgoing_gb
             )
             metrics.ovh_usage_storage_bandwidth_external_outgoing_price.add_metric(
-                [service["id"],
-                    region, flavor],
-                external_outgoing_price
+                [service["id"], region, flavor], external_outgoing_price
             )
             metrics.ovh_usage_storage_bandwidth_internal_incoming_gb_hours.add_metric(
-                [service["id"],
-                    region, flavor],
-                internal_incoming_gb
+                [service["id"], region, flavor], internal_incoming_gb
             )
             metrics.ovh_usage_storage_bandwidth_internal_incoming_price.add_metric(
-                [service["id"],
-                    region, flavor],
-                internal_incoming_price
+                [service["id"], region, flavor], internal_incoming_price
             )
             metrics.ovh_usage_storage_bandwidth_internal_outgoing_gb_hours.add_metric(
-                [service["id"],
-                    region, flavor],
-                internal_outgoing_gb
+                [service["id"], region, flavor], internal_outgoing_gb
             )
             metrics.ovh_usage_storage_bandwidth_internal_outgoing_price.add_metric(
-                [service["id"],
-                    region, flavor],
-                internal_outgoing_price
+                [service["id"], region, flavor], internal_outgoing_price
             )

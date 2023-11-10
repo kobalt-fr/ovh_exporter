@@ -11,6 +11,7 @@ import ovh
 
 from .logger import log
 
+
 def login(config_dict):
     """Init an auth process. Consumer key is displayed in console and
     `env_file` is updated if provided (replace any OVH_CONSUMER_KEY
@@ -18,7 +19,8 @@ def login(config_dict):
     client = ovh.Client(
         endpoint=config_dict["ovh"]["endpoint"],
         application_key=config_dict["ovh"]["application_key"],
-        application_secret=config_dict["ovh"]["application_secret"])
+        application_secret=config_dict["ovh"]["application_secret"],
+    )
     req = ovh.ConsumerKeyRequest(client=client)
     req.add_rule("GET", "/me")
     for service in config_dict["services"]:
@@ -34,13 +36,15 @@ def login(config_dict):
     log.debug("HTTP server starting.")
     callback_called = threading.Semaphore(1)
     httpd = http.server.HTTPServer(
-        ('', 8000),
-        CallbackHttpRequestHanderFactory(callback_called))
+        ("", 8000), CallbackHttpRequestHanderFactory(callback_called)
+    )
     # pylint: disable=consider-using-with
     callback_called.acquire()
+
     def login_callback_server():
         httpd.serve_forever()
         log.debug("HTTP server loop ended.")
+
     thread = threading.Thread(name="login-callback", target=login_callback_server)
     thread.daemon = True
     thread.start()
@@ -59,7 +63,7 @@ def login(config_dict):
 
 def update_env_file(env_file, consumer_key):
     """Update environment file with updated OVH_CONSUMER_KEY.
-    
+
     A new file is created if it does not exists."""
     # create an empty file if it does not exists
     if not os.path.exists(env_file):
@@ -73,19 +77,20 @@ def update_env_file(env_file, consumer_key):
                 update_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 print(f"# updated on {update_str}")
             # ignore existing 'updated on' line
-            if re.match(r'# updated on .*', line):
+            if re.match(r"# updated on .*", line):
                 continue
             # replace OVH_CONSUMER_KEY= definition, else keep entry
             line = re.sub(
-                r'(OVH_CONSUMER_KEY *= *)(.*)',
-                f"OVH_CONSUMER_KEY={consumer_key}", line)
+                r"(OVH_CONSUMER_KEY *= *)(.*)", f"OVH_CONSUMER_KEY={consumer_key}", line
+            )
             print(line, end="")
     print("auth.env updated.")
 
 
 # pylint: disable=too-few-public-methods
-class CallbackHttpRequestHanderFactory():
+class CallbackHttpRequestHanderFactory:
     """Init a CallbackHttpRequestHander with a semaphore."""
+
     def __init__(self, semaphore):
         self._semaphore = semaphore
 
@@ -97,6 +102,7 @@ class CallbackHttpRequestHanderFactory():
 
 class CallbackHttpRequestHandler(http.server.BaseHTTPRequestHandler):
     """Callback for local http server."""
+
     def __init__(self, *args, **kwargs):
         override = dict(kwargs)
         self._semaphore = override["semaphore"]
@@ -106,11 +112,13 @@ class CallbackHttpRequestHandler(http.server.BaseHTTPRequestHandler):
     # pylint: disable=invalid-name
     def do_GET(self):
         """Target for redirect url.
-        
+
         When response is received, we consider consumerKey is validated."""
         self.send_response(http.server.HTTPStatus.OK)
         self.send_header("Content-Type", "text/plain;charset=utf-8")
         self.end_headers()
-        self.wfile.writelines(["Login success! Go back to your terminal.".encode('utf-8')])
+        self.wfile.writelines(
+            ["Login success! Go back to your terminal.".encode("utf-8")]
+        )
         self._semaphore.release()
         log.debug("HTTP server - callback notification sent.")

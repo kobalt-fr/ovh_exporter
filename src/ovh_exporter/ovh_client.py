@@ -7,8 +7,14 @@ from .logger import log
 # pylint: disable=too-few-public-methods
 class Configuration:
     """Client configuration."""
-    def __init__(self, endpoint: str, application_key: str, application_secret: str,
-                 consumer_key: str):
+
+    def __init__(
+        self,
+        endpoint: str,
+        application_key: str,
+        application_secret: str,
+        consumer_key: str,
+    ):
         self.endpoint = endpoint
         self.application_key = application_key
         self.application_secret = application_secret
@@ -21,12 +27,13 @@ class Configuration:
             config_dict["endpoint"],
             config_dict["application_key"],
             config_dict["application_secret"],
-            config_dict["consumer_key"]
+            config_dict["consumer_key"],
         )
 
 
 class OvhApiResponse:
     """API fetch result."""
+
     # pylint: disable=too-many-arguments
     def __init__(self, projects, instances, storages, volumes, quotas, usage):
         self.projects = projects
@@ -39,10 +46,12 @@ class OvhApiResponse:
 
 def build_client(config: Configuration):
     """Build a client from a Configuration."""
-    return ovh.Client(config.endpoint,
-               config.application_key,
-               config.application_secret,
-               config.consumer_key)
+    return ovh.Client(
+        config.endpoint,
+        config.application_key,
+        config.application_secret,
+        config.consumer_key,
+    )
 
 
 def fetch(client: ovh.Client, service_id: str) -> OvhApiResponse:
@@ -59,7 +68,7 @@ def fetch(client: ovh.Client, service_id: str) -> OvhApiResponse:
         quotas=quotas,
         storages=storages,
         volumes=volumes,
-        usage=usage
+        usage=usage,
     )
 
 
@@ -109,7 +118,7 @@ def _quota(client: ovh.Client, service_id: str):
 
 def _storages(client: ovh.Client, service_id: str):
     """Fetch storage information.
-    
+
     id
     name
     archive: bool
@@ -125,7 +134,7 @@ def _storages(client: ovh.Client, service_id: str):
 
 def _usage(client: ovh.Client, service_id: str):
     """Fetch usage information.
-    
+
     hourlyUsage.instance[].reference: d2-2, ...
     hourlyUsage.instance[].region
     hourlyUsage.instance[].quantity.unit: Hour
@@ -207,8 +216,8 @@ def _instance(instance):
     """Map instance information."""
     # ex: s1-2.monthly.postpaid
     plan = instance["planCode"].split(".")
-    flavor = plan[0] # s1.2
-    billing = plan[1] # monthly / hourly
+    flavor = plan[0]  # s1.2
+    billing = plan[1]  # monthly / hourly
     if not billing in ("monthly", "hourly"):
         log.warning("Unexpected value for billing: %s", billing)
     return {
@@ -216,5 +225,5 @@ def _instance(instance):
         "name": instance["name"],
         "flavor": flavor,
         "billing": billing,
-        "region": instance["region"]
+        "region": instance["region"],
     }
