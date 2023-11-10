@@ -18,7 +18,11 @@ classifiers = [
   "Topic :: Utilities",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.11"
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12"
 ]
 dependencies = [
   "click==8.1.6",
@@ -42,6 +46,16 @@ ovh_exporter = "ovh_exporter.cli:main"
 [tool.hatch.version]
 path = "src/ovh_exporter/__init__.py"
 
+
+[tool.hatch.envs.pip-review]
+type = "container"
+python = "3.8"
+dependencies = [
+  "pip-review"
+]
+
+[tool.hatch.envs.pip-review.scripts]
+dev-pip-review = "pip-review"
 
 
 [tool.hatch.envs.dev]
