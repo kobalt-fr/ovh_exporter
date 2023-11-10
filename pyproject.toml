@@ -24,8 +24,6 @@ dependencies = [
   "click==8.1.6",
   "ovh",
   "PyYAML",
-  "path-dict",
-  "requests",
   "prometheus_client",
   "python-dotenv"
 ]
@@ -50,22 +48,18 @@ path = "src/ovh_exporter/__init__.py"
 dependencies = [
   "types-requests",
   "types-PyYAML",
-  "mock>=2.0.0",
-  "pexpect>=4.2.1",
-  "pytest>=3.0.6",
-  "pytest-cov>=2.4.0",
   "mypy",
   "rope",
   "black",
   "pylint",
   "ipdb",
-  "build"
+  "deptry"
 ]
 
 [tool.hatch.envs.dev.scripts]
 dev-pylint = "pylint src/"
-dev-pytest = "pytest"
 dev-mypy = "mypy"
+dev-deptry = "deptry src/"
 
 
 
