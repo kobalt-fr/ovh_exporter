@@ -25,11 +25,11 @@ classifiers = [
   "Programming Language :: Python :: 3.12"
 ]
 dependencies = [
-  "click==8.1.6",
-  "ovh",
-  "PyYAML",
-  "prometheus_client",
-  "python-dotenv"
+  "click~=8.1.6",
+  "ovh~=1.1",
+  "PyYAML~=6.0",
+  "prometheus_client<1",
+  "python-dotenv~=1.0"
 ]
 
 [[project.authors]]
