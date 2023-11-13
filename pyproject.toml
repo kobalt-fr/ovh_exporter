@@ -77,12 +77,8 @@ dependencies = [
   "pytest-cov"
 ]
 
-[tool.hatch.envs.test.scripts]
-dev-pytest = "pytest"
-
 [[tool.hatch.envs.test.matrix]]
 python = ["3.8", "3.12"]
-
 
 
 [tool.pytest.ini_options]
