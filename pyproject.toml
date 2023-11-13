@@ -64,17 +64,10 @@ dependencies = [
   "types-PyYAML",
   "mypy",
   "rope",
-  "black",
-  "pylint",
+  "ruff",
   "ipdb",
   "deptry"
 ]
-
-[tool.hatch.envs.dev.scripts]
-dev-pylint = "pylint src/"
-dev-mypy = "mypy"
-dev-deptry = "deptry src/"
-
 
 
 [tool.hatch.envs.test]
@@ -98,10 +91,6 @@ addopts = "--cov-config .coveragerc --cov-report=xml --cov=."
 testpaths = [
     "tests"
 ]
-
-
-[tool.pylint.main]
-fail-under = 10
 
 
 [tool.mypy]

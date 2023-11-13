@@ -380,7 +380,7 @@ class OvhCollector:
     def _collect_instance_quota(self, metrics: Metrics, service, quotas):
         """Collect instance quota information."""
         for quota in quotas:
-            if not "instance" in quota:
+            if "instance" not in quota:
                 return
             metrics.ovh_quota_instance_count.add_metric(
                 [service["id"], quota["region"]], quota["instance"]["usedInstances"]
@@ -404,7 +404,7 @@ class OvhCollector:
     def _collect_volume_quota(self, metrics: Metrics, service, quotas):
         """Collect volume quota information."""
         for quota in quotas:
-            if not "volume" in quota:
+            if "volume" not in quota:
                 return
             metrics.ovh_quota_volume_gb.add_metric(
                 [service["id"], quota["region"]], quota["volume"]["usedGigabytes"]
@@ -435,7 +435,7 @@ class OvhCollector:
     def _collect_network_quota(self, metrics: Metrics, service, quotas):
         """Collect network quota information."""
         for quota in quotas:
-            if not "network" in quota:
+            if "network" not in quota:
                 return
             metrics.ovh_quota_network_count.add_metric(
                 [service["id"], quota["region"]], quota["network"]["usedNetworks"]
@@ -465,7 +465,7 @@ class OvhCollector:
     def _collect_load_balancer_quota(self, metrics: Metrics, service, quotas):
         """Collect load balancer quota information."""
         for quota in quotas:
-            if not "loadBalancer" in quota:
+            if "loadBalancer" not in quota:
                 return
             metrics.ovh_quota_load_balancer_count.add_metric(
                 [service["id"], quota["region"]],
@@ -479,7 +479,7 @@ class OvhCollector:
     def _collect_keymanager_quota(self, metrics: Metrics, service, quotas):
         """Collect key manager quota information."""
         for quota in quotas:
-            if not "keymanager" in quota:
+            if "keymanager" not in quota:
                 return
             metrics.ovh_quota_keymanager_secret_count.add_metric(
                 [service["id"], quota["region"]], quota["keymanager"]["usedSecrets"]
@@ -562,7 +562,7 @@ class OvhCollector:
     # pylint: disable=too-many-locals,too-many-statements
     def _collect_storage_usage(self, metrics: Metrics, service, usages):
         """Collect storage usage information."""
-        if not "hourlyUsage" in usages:
+        if "hourlyUsage" not in usages:
             return
         for storage in usages["hourlyUsage"]["storage"]:
             if not storage["totalPrice"]:

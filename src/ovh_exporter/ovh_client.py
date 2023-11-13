@@ -218,7 +218,7 @@ def _instance(instance):
     plan = instance["planCode"].split(".")
     flavor = plan[0]  # s1.2
     billing = plan[1]  # monthly / hourly
-    if not billing in ("monthly", "hourly"):
+    if billing not in ("monthly", "hourly"):
         log.warning("Unexpected value for billing: %s", billing)
     return {
         "id": instance["id"],
