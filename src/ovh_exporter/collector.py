@@ -271,7 +271,9 @@ class Metrics:
             labels=volume_usage_labels,
         )
         self.ovh_usage_volume_price = GaugeMetricFamily(
-            "", "Volume usage price", labels=volume_usage_labels
+            "ovh_usage_volume_price",
+            "Volume usage price",
+            labels=volume_usage_labels
         )
 
     # pylint: disable=too-many-statements
