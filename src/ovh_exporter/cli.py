@@ -15,12 +15,21 @@ from .collector import OvhCollector
 from .logger import init_logging, log
 from .ovh_client import Configuration, fetch, build_client
 
+VERBOSITY = {
+    "info": logging.INFO,
+    "debug": logging.DEBUG,
+    "warning": logging.WARNING,
+    "error": logging.ERROR
+}
 
 @click.group("ovh_exporter")
+@click.option("-v", "--verbosity",
+              type=click.Choice(["warning", "info", "debug", "error"]),
+              default="warning")
 @click.pass_context
-def main(ctx):
+def main(ctx, verbosity):
     """Command line entry-point. Load configuration."""
-    init_logging(logging.INFO)
+    init_logging(VERBOSITY[verbosity])
     with open("config.yaml", encoding="utf-8") as fstream:
         # Load configuration
         config_dict = yaml.safe_load(fstream)

@@ -75,7 +75,8 @@ def fetch(client: ovh.Client, service_id: str) -> OvhApiResponse:
 def _project(client: ovh.Client, service_id: str):
     """Fetch project information."""
     proj = client.get(f"/cloud/project/{service_id}")
-    log.info(proj)
+    # pylint: disable=W1203:logging-fstring-interpolation
+    log.debug(f"/cloud/project/{service_id}: {proj}")
     return proj
 
 
@@ -112,7 +113,8 @@ def _quota(client: ovh.Client, service_id: str):
     keymanager.usedSecrets
     """
     quota = client.get(f"/cloud/project/{service_id}/quota")
-    log.info(quota)
+    # pylint: disable=W1203:logging-fstring-interpolation
+    log.debug(f"/cloud/project/{service_id}/quota: {quota}")
     return quota
 
 
@@ -128,7 +130,8 @@ def _storages(client: ovh.Client, service_id: str):
     storedObjects
     """
     storages = client.get(f"/cloud/project/{service_id}/storage", includeType=True)
-    log.info(storages)
+    # pylint: disable=W1203:logging-fstring-interpolation
+    log.debug(f"/cloud/project/{service_id}/storage: {storages}")
     return storages
 
 
@@ -181,7 +184,8 @@ def _usage(client: ovh.Client, service_id: str):
     lastUpdate
     """
     usage = client.get(f"/cloud/project/{service_id}/usage/current")
-    log.info(usage)
+    # pylint: disable=W1203:logging-fstring-interpolation
+    log.debug(f"/cloud/project/{service_id}/usage/current: {usage}")
     return usage
 
 
@@ -200,15 +204,17 @@ def _volumes(client: ovh.Client, service_id: str):
     [].type: classic, high-speed-gen2
     """
     volumes = client.get(f"/cloud/project/{service_id}/volume")
-    log.info(volumes)
+    # pylint: disable=W1203:logging-fstring-interpolation
+    log.debug(f"/cloud/project/{service_id}/volume: {volumes}")
     return volumes
 
 
 def _instances(client: ovh.Client, service_id: str):
     """Fetch instances information."""
     instances = client.get(f"/cloud/project/{service_id}/instance")
-    log.debug(instances)
-    log.info([_instance(i) for i in instances])
+    # pylint: disable=W1203:logging-fstring-interpolation
+    log.debug(f"/cloud/project/{service_id}/instance: {instances}")
+    log.info("instances: %s", [_instance(i) for i in instances])
     return instances
 
 
