@@ -29,7 +29,10 @@ dependencies = [
   "ovh~=1.1",
   "PyYAML~=6.0",
   "prometheus_client<1",
-  "python-dotenv~=1.0"
+  "python-dotenv~=1.0",
+  "twisted",
+  "pyopenssl",
+  "service-identity"
 ]
 
 [[project.authors]]

@@ -223,9 +223,9 @@ def _instance(instance):
     # ex: s1-2.monthly.postpaid
     plan = instance["planCode"].split(".")
     flavor = plan[0]  # s1.2
-    billing = plan[1]  # monthly / hourly
-    if billing not in ("monthly", "hourly"):
-        log.warning("Unexpected value for billing: %s", billing)
+    billing = plan[1]  # monthly / hourly / consumption
+    if billing not in ("monthly", "hourly", "consumption"):
+        log.warning("Unexpected value for billing: %s / %s", billing, instance)
     return {
         "id": instance["id"],
         "name": instance["name"],
