@@ -2,23 +2,19 @@
 import logging
 import os
 import os.path
-import pathlib
 import string
-import sys
 
 import click
 import dotenv
 from prometheus_client import REGISTRY
-from prometheus_client.twisted import MetricsResource
-from twisted.web.server import Site
-from twisted.web.resource import Resource
-from twisted.internet import reactor, ssl
+from prometheus_client.exposition import make_wsgi_app
 import yaml
 
 from . import auth
 from .collector import OvhCollector
 from .logger import init_logging, log
 from .ovh_client import Configuration, fetch, build_client
+from .wsgi import run_server, BasicAuthMiddleware
 
 VERBOSITY = {
     "info": logging.INFO,
@@ -64,8 +60,8 @@ def ovh(ctx):
 
 
 @main.command("server")
-@click.option("--tls-cert-file", type=click.Path(exists=True, dir_okay=False, path_type=pathlib.Path))
-@click.option("--tls-key-file", type=click.Path(exists=True, dir_okay=False, path_type=pathlib.Path))
+@click.option("--tls-cert-file", type=click.Path(exists=True, dir_okay=False))
+@click.option("--tls-key-file", type=click.Path(exists=True, dir_okay=False))
 @click.pass_context
 def server(ctx, tls_cert_file, tls_key_file):
     """Exporter startup"""
@@ -74,33 +70,16 @@ def server(ctx, tls_cert_file, tls_key_file):
     client = build_client(Configuration.load(config_dict["ovh"]))
     # initialize registry
     REGISTRY.register(OvhCollector(client, config_dict["services"]))
-    # load optional TLS certificate
-    certificate = None
-    if tls_cert_file or tls_key_file:
-        if not (tls_cert_file and tls_key_file):
-            print("Both --tls-*-file options are needed.", file=sys.stderr)
-            sys.exit(1)
-        cert = tls_cert_file.read_text(encoding="utf-8")
-        key = tls_key_file.read_text(encoding="utf-8")
-        data = cert + "\n" + key
-        certificate = ssl.PrivateCertificate.loadPEM(data)
-    # start HTTP(s) server
-    root = Resource()
-    root.putChild(b'metrics', MetricsResource())
-    factory = Site(root)
-    port = 9100
-    if certificate:
-        log.info("Using TLS server.")
-        # pylint: disable=E1101:no-member
+    scheme = "http"
+    if tls_cert_file and tls_key_file:
         scheme = "https"
-        reactor.listenSSL(port, factory, certificate.options())
-    else:
-        scheme = "http"
-        # pylint: disable=E1101:no-member
-        reactor.listenTCP(port, factory)
-    print(f"Visit {scheme}://localhost:{port}/metrics to view metrics.")
-    # pylint: disable=E1101:no-member
-    reactor.run()
+    bind_port = 9100
+    bind_addr = "localhost"
+    print(f"Visit {scheme}://{bind_addr}:{bind_port}/metrics to view metrics.")
+    wsgi_app = BasicAuthMiddleware(make_wsgi_app(REGISTRY), "login", "password")
+    run_server(wsgi_app,
+               bind_addr, bind_port,
+               tls_cert_file, tls_key_file)
 
 
 @main.command("login")
