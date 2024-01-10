@@ -9,17 +9,18 @@ import threading
 
 import ovh
 
+from .config import OvhAccount
 from .logger import log
 
 
-def login(config_dict):
+def login(config_dict, account: OvhAccount):
     """Init an auth process. Consumer key is displayed in console and
     `env_file` is updated if provided (replace any OVH_CONSUMER_KEY
     declaration)."""
     client = ovh.Client(
-        endpoint=config_dict["ovh"]["endpoint"],
-        application_key=config_dict["ovh"]["application_key"],
-        application_secret=config_dict["ovh"]["application_secret"],
+        endpoint=account.endpoint,
+        application_key=account.application_key,
+        application_secret=account.application_secret,
     )
     req = ovh.ConsumerKeyRequest(client=client)
     req.add_rule("GET", "/me")

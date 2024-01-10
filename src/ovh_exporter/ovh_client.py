@@ -1,34 +1,8 @@
 """OVH API client."""
 import ovh
 
+from .config import OvhAccount
 from .logger import log
-
-
-# pylint: disable=too-few-public-methods
-class Configuration:
-    """Client configuration."""
-
-    def __init__(
-        self,
-        endpoint: str,
-        application_key: str,
-        application_secret: str,
-        consumer_key: str,
-    ):
-        self.endpoint = endpoint
-        self.application_key = application_key
-        self.application_secret = application_secret
-        self.consumer_key = consumer_key
-
-    @staticmethod
-    def load(config_dict):
-        """Load configuration from a configuration dict."""
-        return Configuration(
-            config_dict["endpoint"],
-            config_dict["application_key"],
-            config_dict["application_secret"],
-            config_dict["consumer_key"],
-        )
 
 
 class OvhApiResponse:
@@ -44,7 +18,7 @@ class OvhApiResponse:
         self.usage = usage
 
 
-def build_client(config: Configuration):
+def build_client(config: OvhAccount):
     """Build a client from a Configuration."""
     return ovh.Client(
         config.endpoint,

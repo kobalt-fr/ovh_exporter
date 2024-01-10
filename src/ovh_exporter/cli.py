@@ -2,7 +2,6 @@
 import logging
 import os
 import os.path
-import string
 
 import click
 import dotenv
@@ -12,8 +11,9 @@ import yaml
 
 from . import auth
 from .collector import OvhCollector
+from .config import expandvars, validate
 from .logger import init_logging, log
-from .ovh_client import Configuration, fetch, build_client
+from .ovh_client import OvhAccount, fetch, build_client
 from .wsgi import run_server, BasicAuthMiddleware
 
 VERBOSITY = {
@@ -34,6 +34,7 @@ def main(ctx, verbosity):
     with open("config.yaml", encoding="utf-8") as fstream:
         # Load configuration
         config_dict = yaml.safe_load(fstream)
+        validate(config_dict)
         # Set on context
         ctx.obj = config_dict
         # Load environment file if provided
@@ -55,7 +56,7 @@ def ovh(ctx):
     """OVH client test."""
     config_dict = ctx.obj
     service_id = config_dict["services"][0]["id"]
-    client = build_client(Configuration.load(config_dict["ovh"]))
+    client = build_client(OvhAccount.load(config_dict["ovh"]))
     fetch(client, service_id)
 
 
@@ -67,7 +68,7 @@ def server(ctx, tls_cert_file, tls_key_file):
     """Exporter startup"""
     # load client
     config_dict = ctx.obj
-    client = build_client(Configuration.load(config_dict["ovh"]))
+    client = build_client(OvhAccount.load(config_dict["ovh"]))
     # initialize registry
     REGISTRY.register(OvhCollector(client, config_dict["services"]))
     scheme = "http"
@@ -87,13 +88,5 @@ def server(ctx, tls_cert_file, tls_key_file):
 def login(ctx):
     """Perform login (retrieve consumerKey). Updated env_file if configured."""
     config_dict = ctx.obj
-    auth.login(config_dict)
+    auth.login(config_dict, OvhAccount.load(config_dict["ovh"], True))
 
-
-def expandvars(dictionary):
-    """Expand environment variable in dictionary."""
-    for k, v in dictionary.items():
-        if isinstance(v, dict):
-            expandvars(v)
-        elif isinstance(v, str):
-            dictionary[k] = string.Template(v).substitute(os.environ)
