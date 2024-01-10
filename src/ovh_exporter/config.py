@@ -52,6 +52,14 @@ properties:
   endpoint:
     description: API endpoint (ovh-eu, ovh-ca, ...)
     type: string
+    enum:
+      - ovh-eu
+      - ovh-us
+      - ovh-ca
+      - soyoustart-eu
+      - soyoustart-ca
+      - kimsufi-eu
+      - kimsufi-ca
   application_key:
     description: Application key
     type: string
