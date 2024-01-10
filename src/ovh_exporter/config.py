@@ -33,6 +33,7 @@ properties:
   id:
     description: Service id
     type: string
+    pattern: ^[a-f0-9]{32}$
   labels:
     description: Prometheus labels to apply to related metrics
     type: object
