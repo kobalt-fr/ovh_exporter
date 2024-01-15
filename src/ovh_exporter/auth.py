@@ -119,7 +119,7 @@ class CallbackHttpRequestHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Content-Type", "text/plain;charset=utf-8")
         self.end_headers()
         self.wfile.writelines(
-            ["Login success! Go back to your terminal.".encode("utf-8")]
+            [b"Login success! Go back to your terminal."]
         )
         self._semaphore.release()
         log.debug("HTTP server - callback notification sent.")

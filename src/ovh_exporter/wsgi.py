@@ -1,8 +1,8 @@
 """WSGI utilities."""
 import base64
+import binascii
 
 import gunicorn.app.base
-import wsgiref.headers
 
 from .logger import log
 
@@ -36,7 +36,7 @@ class StandaloneApplication(gunicorn.app.base.BaseApplication):
         return self.application
 
 
-class BasicAuthMiddleware(object):
+class BasicAuthMiddleware:
     """Basic Auth WSGI middleware"""
     def __init__(self, app, login, password, realm="ovh_exporter"):
         self.app = app
@@ -54,19 +54,31 @@ class BasicAuthMiddleware(object):
             return self.app(environ, start_response)
 
     def _check_auth(self, environ):
-        try:
-            authorization = environ.get("HTTP_AUTHORIZATION", None)
-            if authorization:
-                authorization = authorization[6:]
-                auth = base64.decodebytes(authorization.encode('ascii')).decode('ascii')
-                separator = auth.find(":")
-                login = auth[0:separator]
-                password = auth[separator+1:]
-                if self.login == login and self.password == password:
-                    return True
-        except Exception as exc:
-            log.debug("Exception parsing authorization.", exc_info=exc)
+        authorization = environ.get("HTTP_AUTHORIZATION", None)
+        if authorization:
+            auth = self._extract_authorization(authorization)
+            if auth and self.login == auth[0] and self.password == auth[1]:
+                return True
         return False
+
+    def _extract_authorization(self, authorization_header: str):
+        """Extract decoded Authorization."""
+        if not authorization_header.startswith("Basic "):
+            log.debug("Authorization is not a basic authentication.")
+            return False
+        try:
+             # Strip 'Basic '
+            authorization_base64 = authorization_header[6:].encode('ascii')
+            auth = base64.decodebytes(authorization_base64).decode('utf-8')
+            separator = auth.find(":")
+            if separator != -1:
+                return (auth[0:separator], auth[separator+1:])
+            else:
+                log.debug("Decoded authorization cannot be parsed.")
+                return False
+        except binascii.Error:
+            log.debug("Authorization is not a basic authentication.")
+            return False
 
 def run_server(app, bind_addr="127.0.0.1", bind_port=9100,
                cert_file=None, key_file=None):

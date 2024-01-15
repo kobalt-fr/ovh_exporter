@@ -1,7 +1,6 @@
 """Logger configuration."""
 import logging
 
-
 log = logging.getLogger("ovh_exporter")
 
 

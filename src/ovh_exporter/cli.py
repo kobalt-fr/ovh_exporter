@@ -2,19 +2,20 @@
 import logging
 import os
 import os.path
+import sys
 
 import click
 import dotenv
+import yaml
 from prometheus_client import REGISTRY
 from prometheus_client.exposition import make_wsgi_app
-import yaml
 
 from . import auth
 from .collector import OvhCollector
-from .config import expandvars, validate
+from .config import Config, expandvars, validate
 from .logger import init_logging, log
-from .ovh_client import OvhAccount, fetch, build_client
-from .wsgi import run_server, BasicAuthMiddleware
+from .ovh_client import build_client, fetch
+from .wsgi import BasicAuthMiddleware, run_server
 
 VERBOSITY = {
     "info": logging.INFO,
@@ -35,8 +36,6 @@ def main(ctx, verbosity):
         # Load configuration
         config_dict = yaml.safe_load(fstream)
         validate(config_dict)
-        # Set on context
-        ctx.obj = config_dict
         # Load environment file if provided
         if (
             "env_file" in config_dict
@@ -48,15 +47,16 @@ def main(ctx, verbosity):
             dotenv.load_dotenv(env_file)
         # Expand environment variables in config
         expandvars(config_dict)
+        # Set on context
+        ctx.obj = Config.load(config_dict)
 
 
 @main.command("ovh")
 @click.pass_context
 def ovh(ctx):
     """OVH client test."""
-    config_dict = ctx.obj
-    service_id = config_dict["services"][0]["id"]
-    client = build_client(OvhAccount.load(config_dict["ovh"]))
+    service_id = ctx.obj.services[0].id
+    client = build_client(ctx.obj.ovh)
     fetch(client, service_id)
 
 
@@ -67,17 +67,25 @@ def ovh(ctx):
 def server(ctx, tls_cert_file, tls_key_file):
     """Exporter startup"""
     # load client
-    config_dict = ctx.obj
-    client = build_client(OvhAccount.load(config_dict["ovh"]))
+    client = build_client(ctx.obj.ovh)
     # initialize registry
-    REGISTRY.register(OvhCollector(client, config_dict["services"]))
+    REGISTRY.register(OvhCollector(client, ctx.obj.services))
     scheme = "http"
     if tls_cert_file and tls_key_file:
         scheme = "https"
-    bind_port = 9100
-    bind_addr = "localhost"
+    basic_auth = ctx.obj.server.basic_auth
+    if basic_auth.enabled:
+        if not basic_auth.login or not basic_auth.password:
+            print("Login and password for basic auth are missing.", file=sys.stderr)
+            ctx.exit(1)
+        wsgi_app = BasicAuthMiddleware(
+            make_wsgi_app(REGISTRY),
+            basic_auth.login,
+            basic_auth.password
+        )
+    bind_addr = ctx.obj.server.bind_addr
+    bind_port = ctx.obj.server.port
     print(f"Visit {scheme}://{bind_addr}:{bind_port}/metrics to view metrics.")
-    wsgi_app = BasicAuthMiddleware(make_wsgi_app(REGISTRY), "login", "password")
     run_server(wsgi_app,
                bind_addr, bind_port,
                tls_cert_file, tls_key_file)
@@ -88,5 +96,5 @@ def server(ctx, tls_cert_file, tls_key_file):
 def login(ctx):
     """Perform login (retrieve consumerKey). Updated env_file if configured."""
     config_dict = ctx.obj
-    auth.login(config_dict, OvhAccount.load(config_dict["ovh"], True))
+    auth.login(config_dict, ctx.obj.ovh)
 

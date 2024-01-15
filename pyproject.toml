@@ -64,6 +64,7 @@ dev-pip-review = "pip-review"
 dependencies = [
   "types-requests",
   "types-PyYAML",
+  "types-jsonschema",
   "mypy",
   "rope",
   "ruff",
@@ -100,7 +101,10 @@ files = "src/ovh_exporter/**/*.py"
 [[tool.mypy.overrides]]
 module = [
   "path_dict",
-  "ovh"
+  "ovh",
+  "gunicorn.app.base",
+  "gunicorn.app",
+  "gunicorn"
 ]
 ignore_missing_imports = true
 

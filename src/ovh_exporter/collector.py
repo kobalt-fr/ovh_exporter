@@ -1,10 +1,12 @@
 """OVH Collector."""
 from enum import Enum
 from typing import List
+
 import ovh
 from prometheus_client.core import GaugeMetricFamily
 
 from . import ovh_client
+from .config import Service
 from .logger import log
 
 
@@ -335,9 +337,9 @@ class Metrics:
 class OvhCollector:
     """OVH collector."""
 
-    def __init__(self, client: ovh.Client, services: List):
-        self._client = client
-        self._services = services
+    def __init__(self, client: ovh.Client, services: List[Service]):
+        self._client: ovh.Client = client
+        self._services: List[Service] = services
 
     def describe(self):
         """Describe metrics."""
@@ -348,7 +350,7 @@ class OvhCollector:
         """Collect metrics."""
         metrics = Metrics()
         for service in self._services:
-            response = ovh_client.fetch(self._client, service["id"])
+            response = ovh_client.fetch(self._client, service.id)
             self._collect_volumes(metrics, service, response.volumes)
             self._collect_volume_quota(metrics, service, response.quotas)
             self._collect_instance_quota(metrics, service, response.quotas)
@@ -368,7 +370,7 @@ class OvhCollector:
                 gauge_value = int(volume["size"])
                 metrics.ovh_volume_size_gb.add_metric(
                     [
-                        service["id"],
+                        service.id,
                         volume["id"],
                         volume["name"],
                         volume["region"],
@@ -385,22 +387,22 @@ class OvhCollector:
             if "instance" not in quota:
                 return
             metrics.ovh_quota_instance_count.add_metric(
-                [service["id"], quota["region"]], quota["instance"]["usedInstances"]
+                [service.id, quota["region"]], quota["instance"]["usedInstances"]
             )
             metrics.ovh_quota_instance_max_count.add_metric(
-                [service["id"], quota["region"]], quota["instance"]["maxInstances"]
+                [service.id, quota["region"]], quota["instance"]["maxInstances"]
             )
             metrics.ovh_quota_cpu_count.add_metric(
-                [service["id"], quota["region"]], quota["instance"]["usedCores"]
+                [service.id, quota["region"]], quota["instance"]["usedCores"]
             )
             metrics.ovh_quota_cpu_max_count.add_metric(
-                [service["id"], quota["region"]], quota["instance"]["maxCores"]
+                [service.id, quota["region"]], quota["instance"]["maxCores"]
             )
             metrics.ovh_quota_ram_gb.add_metric(
-                [service["id"], quota["region"]], quota["instance"]["usedRAM"]
+                [service.id, quota["region"]], quota["instance"]["usedRAM"]
             )
             metrics.ovh_quota_ram_max_gb.add_metric(
-                [service["id"], quota["region"]], quota["instance"]["maxRam"]
+                [service.id, quota["region"]], quota["instance"]["maxRam"]
             )
 
     def _collect_volume_quota(self, metrics: Metrics, service, quotas):
@@ -409,28 +411,28 @@ class OvhCollector:
             if "volume" not in quota:
                 return
             metrics.ovh_quota_volume_gb.add_metric(
-                [service["id"], quota["region"]], quota["volume"]["usedGigabytes"]
+                [service.id, quota["region"]], quota["volume"]["usedGigabytes"]
             )
             metrics.ovh_quota_volume_max_gb.add_metric(
-                [service["id"], quota["region"]], quota["volume"]["maxGigabytes"]
+                [service.id, quota["region"]], quota["volume"]["maxGigabytes"]
             )
             metrics.ovh_quota_volume_backup_gb.add_metric(
-                [service["id"], quota["region"]], quota["volume"]["usedBackupGigabytes"]
+                [service.id, quota["region"]], quota["volume"]["usedBackupGigabytes"]
             )
             metrics.ovh_quota_volume_backup_max_gb.add_metric(
-                [service["id"], quota["region"]], quota["volume"]["maxBackupGigabytes"]
+                [service.id, quota["region"]], quota["volume"]["maxBackupGigabytes"]
             )
             metrics.ovh_quota_volume_count.add_metric(
-                [service["id"], quota["region"]], quota["volume"]["volumeCount"]
+                [service.id, quota["region"]], quota["volume"]["volumeCount"]
             )
             metrics.ovh_quota_volume_max_count.add_metric(
-                [service["id"], quota["region"]], quota["volume"]["maxVolumeCount"]
+                [service.id, quota["region"]], quota["volume"]["maxVolumeCount"]
             )
             metrics.ovh_quota_volume_backup_count.add_metric(
-                [service["id"], quota["region"]], quota["volume"]["volumeBackupCount"]
+                [service.id, quota["region"]], quota["volume"]["volumeBackupCount"]
             )
             metrics.ovh_quota_volume_backup_max_count.add_metric(
-                [service["id"], quota["region"]],
+                [service.id, quota["region"]],
                 quota["volume"]["maxVolumeBackupCount"],
             )
 
@@ -440,28 +442,28 @@ class OvhCollector:
             if "network" not in quota:
                 return
             metrics.ovh_quota_network_count.add_metric(
-                [service["id"], quota["region"]], quota["network"]["usedNetworks"]
+                [service.id, quota["region"]], quota["network"]["usedNetworks"]
             )
             metrics.ovh_quota_network_max_count.add_metric(
-                [service["id"], quota["region"]], quota["network"]["maxNetworks"]
+                [service.id, quota["region"]], quota["network"]["maxNetworks"]
             )
             metrics.ovh_quota_network_subnet_count.add_metric(
-                [service["id"], quota["region"]], quota["network"]["usedSubnets"]
+                [service.id, quota["region"]], quota["network"]["usedSubnets"]
             )
             metrics.ovh_quota_network_subnet_max_count.add_metric(
-                [service["id"], quota["region"]], quota["network"]["maxSubnets"]
+                [service.id, quota["region"]], quota["network"]["maxSubnets"]
             )
             metrics.ovh_quota_network_floating_ip_count.add_metric(
-                [service["id"], quota["region"]], quota["network"]["usedFloatingIPs"]
+                [service.id, quota["region"]], quota["network"]["usedFloatingIPs"]
             )
             metrics.ovh_quota_network_floating_ip_max_count.add_metric(
-                [service["id"], quota["region"]], quota["network"]["maxFloatingIPs"]
+                [service.id, quota["region"]], quota["network"]["maxFloatingIPs"]
             )
             metrics.ovh_quota_network_gateway_count.add_metric(
-                [service["id"], quota["region"]], quota["network"]["usedGateways"]
+                [service.id, quota["region"]], quota["network"]["usedGateways"]
             )
             metrics.ovh_quota_network_gateway_max_count.add_metric(
-                [service["id"], quota["region"]], quota["network"]["maxGateways"]
+                [service.id, quota["region"]], quota["network"]["maxGateways"]
             )
 
     def _collect_load_balancer_quota(self, metrics: Metrics, service, quotas):
@@ -470,11 +472,11 @@ class OvhCollector:
             if "loadBalancer" not in quota:
                 return
             metrics.ovh_quota_load_balancer_count.add_metric(
-                [service["id"], quota["region"]],
+                [service.id, quota["region"]],
                 quota["loadBalancer"]["usedLoadBalancers"],
             )
             metrics.ovh_quota_load_balancer_max_count.add_metric(
-                [service["id"], quota["region"]],
+                [service.id, quota["region"]],
                 quota["loadBalancer"]["maxLoadBalancers"],
             )
 
@@ -484,10 +486,10 @@ class OvhCollector:
             if "keymanager" not in quota:
                 return
             metrics.ovh_quota_keymanager_secret_count.add_metric(
-                [service["id"], quota["region"]], quota["keymanager"]["usedSecrets"]
+                [service.id, quota["region"]], quota["keymanager"]["usedSecrets"]
             )
             metrics.ovh_quota_keymanager_secret_max_count.add_metric(
-                [service["id"], quota["region"]], quota["keymanager"]["maxSecrets"]
+                [service.id, quota["region"]], quota["keymanager"]["maxSecrets"]
             )
 
     def _collect_storages(self, metrics: Metrics, service, storages):
@@ -495,7 +497,7 @@ class OvhCollector:
         for storage in storages:
             metrics.ovh_storage_size_bytes.add_metric(
                 [
-                    service["id"],
+                    service.id,
                     storage["region"],
                     storage["id"],
                     storage["name"],
@@ -505,7 +507,7 @@ class OvhCollector:
             )
             metrics.ovh_storage_object_count.add_metric(
                 [
-                    service["id"],
+                    service.id,
                     storage["region"],
                     storage["id"],
                     storage["name"],
@@ -524,10 +526,10 @@ class OvhCollector:
                     price = instance["totalPrice"]
                     instance_id = instance["instanceId"]
                     metrics.ovh_usage_instance_hours.add_metric(
-                        [service["id"], region, instance_id, "hourly", flavor], hours
+                        [service.id, region, instance_id, "hourly", flavor], hours
                     )
                     metrics.ovh_usage_instance_price.add_metric(
-                        [service["id"], region, instance_id, "hourly", flavor], price
+                        [service.id, region, instance_id, "hourly", flavor], price
                     )
         if "monthlyUsage" in usages:
             for group in usages["monthlyUsage"]["instance"]:
@@ -538,10 +540,10 @@ class OvhCollector:
                     price = instance["totalPrice"]
                     instance_id = instance["instanceId"]
                     metrics.ovh_usage_instance_hours.add_metric(
-                        [service["id"], region, instance_id, "monthly", flavor], hours
+                        [service.id, region, instance_id, "monthly", flavor], hours
                     )
                     metrics.ovh_usage_instance_price.add_metric(
-                        [service["id"], region, instance_id, "monthly", flavor], price
+                        [service.id, region, instance_id, "monthly", flavor], price
                     )
 
     def _collect_volume_usage(self, metrics: Metrics, service, usages):
@@ -555,10 +557,10 @@ class OvhCollector:
                     price = volume["totalPrice"]
                     instance_id = volume["volumeId"]
                     metrics.ovh_usage_volume_gb_hours.add_metric(
-                        [service["id"], region, instance_id, flavor], hours
+                        [service.id, region, instance_id, flavor], hours
                     )
                     metrics.ovh_usage_volume_price.add_metric(
-                        [service["id"], region, instance_id, flavor], price
+                        [service.id, region, instance_id, flavor], price
                     )
 
     # pylint: disable=too-many-locals,too-many-statements
@@ -606,32 +608,32 @@ class OvhCollector:
                 internal_outgoing_gb = 0
                 internal_outgoing_price = 0
             metrics.ovh_usage_storage_gb_hours.add_metric(
-                [service["id"], region, flavor], hours
+                [service.id, region, flavor], hours
             )
             metrics.ovh_usage_storage_price.add_metric(
-                [service["id"], region, flavor], price
+                [service.id, region, flavor], price
             )
             metrics.ovh_usage_storage_bandwidth_external_incoming_gb_hours.add_metric(
-                [service["id"], region, flavor], external_incoming_gb
+                [service.id, region, flavor], external_incoming_gb
             )
             metrics.ovh_usage_storage_bandwidth_external_incoming_price.add_metric(
-                [service["id"], region, flavor], external_incoming_price
+                [service.id, region, flavor], external_incoming_price
             )
             metrics.ovh_usage_storage_bandwidth_external_outgoing_gb_hours.add_metric(
-                [service["id"], region, flavor], external_outgoing_gb
+                [service.id, region, flavor], external_outgoing_gb
             )
             metrics.ovh_usage_storage_bandwidth_external_outgoing_price.add_metric(
-                [service["id"], region, flavor], external_outgoing_price
+                [service.id, region, flavor], external_outgoing_price
             )
             metrics.ovh_usage_storage_bandwidth_internal_incoming_gb_hours.add_metric(
-                [service["id"], region, flavor], internal_incoming_gb
+                [service.id, region, flavor], internal_incoming_gb
             )
             metrics.ovh_usage_storage_bandwidth_internal_incoming_price.add_metric(
-                [service["id"], region, flavor], internal_incoming_price
+                [service.id, region, flavor], internal_incoming_price
             )
             metrics.ovh_usage_storage_bandwidth_internal_outgoing_gb_hours.add_metric(
-                [service["id"], region, flavor], internal_outgoing_gb
+                [service.id, region, flavor], internal_outgoing_gb
             )
             metrics.ovh_usage_storage_bandwidth_internal_outgoing_price.add_metric(
-                [service["id"], region, flavor], internal_outgoing_price
+                [service.id, region, flavor], internal_outgoing_price
             )
