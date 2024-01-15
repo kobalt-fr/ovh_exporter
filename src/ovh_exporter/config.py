@@ -258,7 +258,7 @@ class Config:
         )
         validator.validate(config_dict)
         ovh = OvhAccount.load(config_dict.get("ovh"))
-        server = Server.load(config_dict.get("server", None))
+        server = Server.load(config_dict.get("server", {}))
         services = list(
             Service.load(i)
             for i in config_dict.get("services", []))

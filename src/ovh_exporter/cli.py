@@ -61,18 +61,31 @@ def ovh(ctx):
 
 
 @main.command("server")
-@click.option("--tls-cert-file", type=click.Path(exists=True, dir_okay=False))
-@click.option("--tls-key-file", type=click.Path(exists=True, dir_okay=False))
 @click.pass_context
-def server(ctx, tls_cert_file, tls_key_file):
+def server(ctx):
     """Exporter startup"""
     # load client
     client = build_client(ctx.obj.ovh)
     # initialize registry
     REGISTRY.register(OvhCollector(client, ctx.obj.services))
     scheme = "http"
-    if tls_cert_file and tls_key_file:
+    tls = ctx.obj.server.tls
+    cert_file = None
+    key_file = None
+    if tls.enabled:
+        if (
+            not tls.cert_file
+            or not tls.key_file):
+            print("TLS enabled but server.tls.(cert_file|key_file) configurations are missing.", file=sys.stderr)
+            ctx.exit(1)
+        if (
+            not os.path.exists(tls.cert_file)
+            or not os.path.exists(tls.key_file)):
+            print(f"TLS enabled but {tls.cert_file} or {tls.key_file} file are mssing.", file=sys.stderr)
+            ctx.exit(1)
         scheme = "https"
+        cert_file = tls.cert_file
+        key_file = tls.key_file
     basic_auth = ctx.obj.server.basic_auth
     if basic_auth.enabled:
         if not basic_auth.login or not basic_auth.password:
@@ -88,7 +101,7 @@ def server(ctx, tls_cert_file, tls_key_file):
     print(f"Visit {scheme}://{bind_addr}:{bind_port}/metrics to view metrics.")
     run_server(wsgi_app,
                bind_addr, bind_port,
-               tls_cert_file, tls_key_file)
+               cert_file, key_file)
 
 
 @main.command("login")
