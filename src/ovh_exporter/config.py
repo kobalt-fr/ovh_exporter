@@ -1,4 +1,6 @@
 """Configuration loading utilities."""
+from __future__ import annotations
+
 import os
 import string
 import typing
@@ -158,7 +160,7 @@ class Tls:
     """TLS options."""
     def __init__(
             self,
-            enabled: bool,
+            enabled: bool, # noqa: FBT001
             cert_file: str|None,
             key_file: str|None):
         self.enabled = enabled
@@ -180,7 +182,7 @@ class BasicAuth:
     """Basic authentication options."""
     def __init__(
             self,
-            enabled: bool,
+            enabled: bool, # noqa: FBT001
             login: str|None,
             password: str|None):
         self.enabled = enabled
@@ -243,7 +245,7 @@ class Config:
             ovh: OvhAccount,
             server: Server,
             env_file: str,
-            services: typing.List[Service]):
+            services: list[Service]):
         self.ovh = ovh
         self.server = server
         self.env_file = env_file
@@ -259,9 +261,9 @@ class Config:
         validator.validate(config_dict)
         ovh = OvhAccount.load(config_dict.get("ovh"))
         server = Server.load(config_dict.get("server", {}))
-        services = list(
+        services = [
             Service.load(i)
-            for i in config_dict.get("services", []))
+            for i in config_dict.get("services", [])]
         return Config(ovh,
                       server,
                       config_dict.get("env_file", None),

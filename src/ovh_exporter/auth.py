@@ -9,8 +9,8 @@ import threading
 
 import ovh
 
-from .config import OvhAccount
-from .logger import log
+from ovh_exporter.config import OvhAccount
+from ovh_exporter.logger import log
 
 
 def login(config_dict, account: OvhAccount):
@@ -32,8 +32,11 @@ def login(config_dict, account: OvhAccount):
         req.add_rule("GET", f"/cloud/project/{service['id']}/usage/current")
         req.add_rule("GET", f"/cloud/project/{service['id']}/volume")
     pending_request = req.request("http://localhost:8000/")
-    subprocess.check_call(["xdg-open", pending_request["validationUrl"]])
-    print(f"Perform login in opened browser ({pending_request['validationUrl']})")
+    if os.path.exists("/usr/bin/xdg-open"):
+        subprocess.check_call(["/usr/bin/xdg-open", pending_request["validationUrl"]])
+        print(f"Perform login in opened browser ({pending_request['validationUrl']})") # noqa: T201
+    else:
+        print(f"Browse and authorize access with URL {pending_request['validationUrl']}") # noqa: T201
     log.debug("HTTP server starting.")
     callback_called = threading.Semaphore(1)
     httpd = http.server.HTTPServer(
@@ -57,7 +60,7 @@ def login(config_dict, account: OvhAccount):
     httpd.shutdown()
     log.debug("HTTP server stopped.")
     consumer_key = pending_request["consumerKey"]
-    print(f"Login success; consumerKey={consumer_key}")
+    print(f"Login success; consumerKey={consumer_key}") # noqa: T201
     if "env_file" in config_dict and config_dict["env_file"]:
         update_env_file(config_dict["env_file"], consumer_key)
 
@@ -75,17 +78,17 @@ def update_env_file(env_file, consumer_key):
         for line in f:
             # add an 'updated on' comment
             if f.isfirstline():
-                update_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                print(f"# updated on {update_str}")
+                update_str = datetime.datetime.now(tz="GMT").strftime("%Y-%m-%d %H:%M:%SZ")
+                f.write(f"# updated on {update_str}")
             # ignore existing 'updated on' line
             if re.match(r"# updated on .*", line):
                 continue
             # replace OVH_CONSUMER_KEY= definition, else keep entry
-            line = re.sub(
+            overwrite_line = re.sub(
                 r"(OVH_CONSUMER_KEY *= *)(.*)", f"OVH_CONSUMER_KEY={consumer_key}", line
             )
-            print(line, end="")
-    print("auth.env updated.")
+            f.write(overwrite_line)
+    print("auth.env updated.") # noqa: T201
 
 
 # pylint: disable=too-few-public-methods
@@ -111,7 +114,7 @@ class CallbackHttpRequestHandler(http.server.BaseHTTPRequestHandler):
         super().__init__(*args, **override)
 
     # pylint: disable=invalid-name
-    def do_GET(self):
+    def do_GET(self): # noqa: N802
         """Target for redirect url.
 
         When response is received, we consider consumerKey is validated."""

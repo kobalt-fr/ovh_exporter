@@ -10,12 +10,12 @@ import yaml
 from prometheus_client import REGISTRY
 from prometheus_client.exposition import make_wsgi_app
 
-from . import auth
-from .collector import OvhCollector
-from .config import Config, expandvars, validate
-from .logger import init_logging, log
-from .ovh_client import build_client, fetch
-from .wsgi import BasicAuthMiddleware, run_server
+from ovh_exporter import auth
+from ovh_exporter.collector import OvhCollector
+from ovh_exporter.config import Config, expandvars, validate
+from ovh_exporter.logger import init_logging, log
+from ovh_exporter.ovh_client import build_client, fetch
+from ovh_exporter.wsgi import BasicAuthMiddleware, run_server
 
 VERBOSITY = {
     "info": logging.INFO,
@@ -76,12 +76,12 @@ def server(ctx):
         if (
             not tls.cert_file
             or not tls.key_file):
-            print("TLS enabled but server.tls.(cert_file|key_file) configurations are missing.", file=sys.stderr)
+            print("TLS enabled but server.tls.(cert_file|key_file) configurations are missing.", file=sys.stderr) # noqa: T201
             ctx.exit(1)
         if (
             not os.path.exists(tls.cert_file)
             or not os.path.exists(tls.key_file)):
-            print(f"TLS enabled but {tls.cert_file} or {tls.key_file} file are mssing.", file=sys.stderr)
+            print(f"TLS enabled but {tls.cert_file} or {tls.key_file} file are mssing.", file=sys.stderr) # noqa: T201
             ctx.exit(1)
         scheme = "https"
         cert_file = tls.cert_file
@@ -89,7 +89,7 @@ def server(ctx):
     basic_auth = ctx.obj.server.basic_auth
     if basic_auth.enabled:
         if not basic_auth.login or not basic_auth.password:
-            print("Login and password for basic auth are missing.", file=sys.stderr)
+            print("Login and password for basic auth are missing.", file=sys.stderr) # noqa: T201
             ctx.exit(1)
         wsgi_app = BasicAuthMiddleware(
             make_wsgi_app(REGISTRY),
@@ -98,7 +98,7 @@ def server(ctx):
         )
     bind_addr = ctx.obj.server.bind_addr
     bind_port = ctx.obj.server.port
-    print(f"Visit {scheme}://{bind_addr}:{bind_port}/metrics to view metrics.")
+    print(f"Visit {scheme}://{bind_addr}:{bind_port}/metrics to view metrics.") # noqa: T201
     run_server(wsgi_app,
                bind_addr, bind_port,
                cert_file, key_file)

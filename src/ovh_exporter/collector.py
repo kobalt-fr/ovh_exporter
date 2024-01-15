@@ -1,14 +1,18 @@
 """OVH Collector."""
-from enum import Enum
-from typing import List
+from __future__ import annotations
 
-import ovh
+import typing
+from enum import Enum
+
 from prometheus_client.core import GaugeMetricFamily
 
-from . import ovh_client
-from .config import Service
-from .logger import log
+from ovh_exporter import ovh_client
+from ovh_exporter.logger import log
 
+if typing.TYPE_CHECKING:
+    import ovh
+
+    from ovh_exporter.config import Service
 
 class Endpoint(Enum):
     """API Enpoints."""
@@ -27,19 +31,19 @@ class Endpoint(Enum):
 class MetricFamily(Enum):
     """Metric families selection."""
 
-    PROCESS: List[Endpoint] = []
-    GC: List[Endpoint] = []
-    PLATFORM: List[Endpoint] = []
-    USAGE_VOLUME = [Endpoint.USAGE]
-    USAGE_STORAGE = [Endpoint.USAGE]
-    USAGE_INSTANCE = [Endpoint.USAGE]
-    QUOTA_VOLUME = [Endpoint.QUOTA]
-    QUOTA_INSTANCE = [Endpoint.USAGE]
-    QUOTA_NETWORK = [Endpoint.USAGE]
-    QUOTA_LB = [Endpoint.USAGE]
-    QUOTA_KEYMANAGER = [Endpoint.USAGE]
+    PROCESS: tuple[Endpoint] = []
+    GC: tuple[Endpoint] = []
+    PLATFORM: tuple[Endpoint] = []
+    USAGE_VOLUME = (Endpoint.USAGE,)
+    USAGE_STORAGE = (Endpoint.USAGE,)
+    USAGE_INSTANCE = (Endpoint.USAGE,)
+    QUOTA_VOLUME = (Endpoint.QUOTA,)
+    QUOTA_INSTANCE = (Endpoint.USAGE,)
+    QUOTA_NETWORK = (Endpoint.USAGE,)
+    QUOTA_LB = (Endpoint.USAGE,)
+    QUOTA_KEYMANAGER = (Endpoint.USAGE,)
 
-    def __init__(self, endpoints: List[Endpoint]):
+    def __init__(self, endpoints: tuple[Endpoint]):
         self.endpoints = endpoints
 
 
@@ -337,9 +341,9 @@ class Metrics:
 class OvhCollector:
     """OVH collector."""
 
-    def __init__(self, client: ovh.Client, services: List[Service]):
+    def __init__(self, client: ovh.Client, services: list[Service]):
         self._client: ovh.Client = client
-        self._services: List[Service] = services
+        self._services: list[Service] = services
 
     def describe(self):
         """Describe metrics."""

@@ -4,7 +4,7 @@ import binascii
 
 import gunicorn.app.base
 
-from .logger import log
+from ovh_exporter.logger import log
 
 
 class StandaloneApplication(gunicorn.app.base.BaseApplication):
@@ -50,8 +50,7 @@ class BasicAuthMiddleware:
                 "401 Unauthorized",
                 [("WWW-Authenticate", f"Basic realm={self.realm}, charset=\"UTF-8\"")])
             return []
-        else:
-            return self.app(environ, start_response)
+        return self.app(environ, start_response)
 
     def _check_auth(self, environ):
         authorization = environ.get("HTTP_AUTHORIZATION", None)
@@ -73,7 +72,7 @@ class BasicAuthMiddleware:
             separator = auth.find(":")
             if separator != -1:
                 return (auth[0:separator], auth[separator+1:])
-            else:
+            else: # noqa: RET505
                 log.debug("Decoded authorization cannot be parsed.")
                 return False
         except binascii.Error:

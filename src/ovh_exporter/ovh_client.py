@@ -1,8 +1,8 @@
 """OVH API client."""
 import ovh
 
-from .config import OvhAccount
-from .logger import log
+from ovh_exporter.config import OvhAccount
+from ovh_exporter.logger import log
 
 
 class OvhApiResponse:
