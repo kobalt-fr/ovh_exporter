@@ -37,7 +37,7 @@ VERBOSITY = {
 def main(ctx, config, verbosity):
     """Command line entry-point. Load configuration."""
     init_logging(VERBOSITY[verbosity])
-    with open("config.yaml", encoding="utf-8") as fstream:
+    with open(config, encoding="utf-8") as fstream:
         # Load configuration
         config_dict = yaml.safe_load(fstream)
         validate(config_dict)
