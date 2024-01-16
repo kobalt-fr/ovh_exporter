@@ -1,0 +1,23 @@
+---
+server:
+  bind_addr: localhost
+  bind_port: 9100
+  tls:
+    enabled: true
+    cert_file: certificates/domain.crt
+    key_file: certificates/domain.key
+  basic_auth:
+    enabled: true
+    login: login
+    password: password
+ovh:
+  endpoint: ovh-eu
+  application_key: xxx
+  application_secret: ${APPLICATION_SECRET}
+  consumer_key: ${CONSUMER_KEY}
+env_file: auth.env.tmpl
+services:
+- id: a2a57ad2af1e382a46d65b5e3bd2945a
+  labels:
+    label1: value1
+    label2: value2
