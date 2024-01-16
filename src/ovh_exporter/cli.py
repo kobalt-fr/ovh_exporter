@@ -27,9 +27,14 @@ VERBOSITY = {
 @click.group("ovh_exporter")
 @click.option("-v", "--verbosity",
               type=click.Choice(["warning", "info", "debug", "error"]),
-              default="warning")
+              default="warning",
+              envvar="OVH_EXPORTER_VERBOSITY")
+@click.option("-c", "--config",
+              type=click.Path(exists=True, dir_okay=False),
+              default="config.yaml",
+              envvar="OVH_EXPORTER_CONFIG")
 @click.pass_context
-def main(ctx, verbosity):
+def main(ctx, config, verbosity):
     """Command line entry-point. Load configuration."""
     init_logging(VERBOSITY[verbosity])
     with open("config.yaml", encoding="utf-8") as fstream:
