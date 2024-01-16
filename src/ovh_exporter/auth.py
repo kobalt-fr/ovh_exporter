@@ -78,8 +78,8 @@ def update_env_file(env_file, consumer_key):
         for line in f:
             # add an 'updated on' comment
             if f.isfirstline():
-                update_str = datetime.datetime.now(tz="GMT").strftime("%Y-%m-%d %H:%M:%SZ")
-                f.write(f"# updated on {update_str}")
+                update_str = datetime.datetime.now(tz=datetime.UTC).strftime("%Y-%m-%d %H:%M:%SZ")
+                print(f"# updated on {update_str}") # noqa: T201
             # ignore existing 'updated on' line
             if re.match(r"# updated on .*", line):
                 continue
@@ -87,7 +87,7 @@ def update_env_file(env_file, consumer_key):
             overwrite_line = re.sub(
                 r"(OVH_CONSUMER_KEY *= *)(.*)", f"OVH_CONSUMER_KEY={consumer_key}", line
             )
-            f.write(overwrite_line)
+            print(overwrite_line) # noqa: T201
     print("auth.env updated.") # noqa: T201
 
 
