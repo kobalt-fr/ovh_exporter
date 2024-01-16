@@ -617,25 +617,25 @@ class OvhCollector:
             metrics.ovh_usage_storage_price.add_metric(
                 [service.id, region, flavor], price
             )
-            metrics.ovh_usage_storage_bandwidth_external_incoming_gb_hours.add_metric(
+            metrics.ovh_usage_storage_bandwidth_external_incoming_gb.add_metric(
                 [service.id, region, flavor], external_incoming_gb
             )
             metrics.ovh_usage_storage_bandwidth_external_incoming_price.add_metric(
                 [service.id, region, flavor], external_incoming_price
             )
-            metrics.ovh_usage_storage_bandwidth_external_outgoing_gb_hours.add_metric(
+            metrics.ovh_usage_storage_bandwidth_external_outgoing_gb.add_metric(
                 [service.id, region, flavor], external_outgoing_gb
             )
             metrics.ovh_usage_storage_bandwidth_external_outgoing_price.add_metric(
                 [service.id, region, flavor], external_outgoing_price
             )
-            metrics.ovh_usage_storage_bandwidth_internal_incoming_gb_hours.add_metric(
+            metrics.ovh_usage_storage_bandwidth_internal_incoming_gb.add_metric(
                 [service.id, region, flavor], internal_incoming_gb
             )
             metrics.ovh_usage_storage_bandwidth_internal_incoming_price.add_metric(
                 [service.id, region, flavor], internal_incoming_price
             )
-            metrics.ovh_usage_storage_bandwidth_internal_outgoing_gb_hours.add_metric(
+            metrics.ovh_usage_storage_bandwidth_internal_outgoing_gb.add_metric(
                 [service.id, region, flavor], internal_outgoing_gb
             )
             metrics.ovh_usage_storage_bandwidth_internal_outgoing_price.add_metric(

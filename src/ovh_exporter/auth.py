@@ -9,28 +9,28 @@ import threading
 
 import ovh
 
-from ovh_exporter.config import OvhAccount
+from ovh_exporter.config import Config
 from ovh_exporter.logger import log
 
 
-def login(config_dict, account: OvhAccount):
+def login(config: Config):
     """Init an auth process. Consumer key is displayed in console and
     `env_file` is updated if provided (replace any OVH_CONSUMER_KEY
     declaration)."""
     client = ovh.Client(
-        endpoint=account.endpoint,
-        application_key=account.application_key,
-        application_secret=account.application_secret,
+        endpoint=config.ovh.endpoint,
+        application_key=config.ovh.application_key,
+        application_secret=config.ovh.application_secret,
     )
     req = ovh.ConsumerKeyRequest(client=client)
     req.add_rule("GET", "/me")
-    for service in config_dict["services"]:
-        req.add_rule("GET", f"/cloud/project/{service['id']}")
-        req.add_rule("GET", f"/cloud/project/{service['id']}/quota")
-        req.add_rule("GET", f"/cloud/project/{service['id']}/instance")
-        req.add_rule("GET", f"/cloud/project/{service['id']}/storage")
-        req.add_rule("GET", f"/cloud/project/{service['id']}/usage/current")
-        req.add_rule("GET", f"/cloud/project/{service['id']}/volume")
+    for service in config.services:
+        req.add_rule("GET", f"/cloud/project/{service.id}")
+        req.add_rule("GET", f"/cloud/project/{service.id}/quota")
+        req.add_rule("GET", f"/cloud/project/{service.id}/instance")
+        req.add_rule("GET", f"/cloud/project/{service.id}/storage")
+        req.add_rule("GET", f"/cloud/project/{service.id}/usage/current")
+        req.add_rule("GET", f"/cloud/project/{service.id}/volume")
     pending_request = req.request("http://localhost:8000/")
     if os.path.exists("/usr/bin/xdg-open"):
         subprocess.check_call(["/usr/bin/xdg-open", pending_request["validationUrl"]])
@@ -61,8 +61,8 @@ def login(config_dict, account: OvhAccount):
     log.debug("HTTP server stopped.")
     consumer_key = pending_request["consumerKey"]
     print(f"Login success; consumerKey={consumer_key}") # noqa: T201
-    if "env_file" in config_dict and config_dict["env_file"]:
-        update_env_file(config_dict["env_file"], consumer_key)
+    if config.env_file:
+        update_env_file(config.env_file, consumer_key)
 
 
 def update_env_file(env_file, consumer_key):

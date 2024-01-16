@@ -132,3 +132,9 @@ docker run --rm \
   -v $PWD/certificates:/app/certificates \
   ovh_exporter
 ```
+
+## History
+
+### v0.1 (2023-01-16)
+
+* initial release

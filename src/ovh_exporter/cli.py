@@ -92,12 +92,13 @@ def server(ctx):
         cert_file = tls.cert_file
         key_file = tls.key_file
     basic_auth = ctx.obj.server.basic_auth
+    wsgi_app = make_wsgi_app(REGISTRY)
     if basic_auth.enabled:
         if not basic_auth.login or not basic_auth.password:
             print("Login and password for basic auth are missing.", file=sys.stderr) # noqa: T201
             ctx.exit(1)
         wsgi_app = BasicAuthMiddleware(
-            make_wsgi_app(REGISTRY),
+            wsgi_app,
             basic_auth.login,
             basic_auth.password
         )
@@ -113,6 +114,5 @@ def server(ctx):
 @click.pass_context
 def login(ctx):
     """Perform login (retrieve consumerKey). Updated env_file if configured."""
-    config_dict = ctx.obj
-    auth.login(config_dict, ctx.obj.ovh)
+    auth.login(ctx.obj)
 
