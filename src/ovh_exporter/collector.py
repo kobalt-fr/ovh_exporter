@@ -65,9 +65,9 @@ class Metrics:
             "Storage usage price",
             labels=storage_usage_labels,
         )
-        self.ovh_usage_storage_bandwidth_external_outgoing_gb_hours = GaugeMetricFamily(
-            "ovh_usage_storage_bandwidth_external_outgoing_gb_hours",
-            "Storage usage external outgoing bandwidth in gb x hours",
+        self.ovh_usage_storage_bandwidth_external_outgoing_gb = GaugeMetricFamily(
+            "ovh_usage_storage_bandwidth_external_outgoing_gb",
+            "Storage usage external outgoing bandwidth in gb",
             labels=storage_usage_labels,
         )
         self.ovh_usage_storage_bandwidth_external_outgoing_price = GaugeMetricFamily(
@@ -75,9 +75,9 @@ class Metrics:
             "Storage usage external outgoing bandwidth price",
             labels=storage_usage_labels,
         )
-        self.ovh_usage_storage_bandwidth_internal_outgoing_gb_hours = GaugeMetricFamily(
-            "ovh_usage_storage_bandwidth_internal_outgoing_gb_hours",
-            "Storage usage external outgoing bandwidth in gb x hours",
+        self.ovh_usage_storage_bandwidth_internal_outgoing_gb = GaugeMetricFamily(
+            "ovh_usage_storage_bandwidth_internal_outgoing_gb",
+            "Storage usage external outgoing bandwidth in gb",
             labels=storage_usage_labels,
         )
         self.ovh_usage_storage_bandwidth_internal_outgoing_price = GaugeMetricFamily(
@@ -85,9 +85,9 @@ class Metrics:
             "Storage usage external outgoing bandwidth price",
             labels=storage_usage_labels,
         )
-        self.ovh_usage_storage_bandwidth_external_incoming_gb_hours = GaugeMetricFamily(
-            "ovh_usage_storage_bandwidth_external_incoming_gb_hours",
-            "Storage usage external incoming bandwidth in gb x hours",
+        self.ovh_usage_storage_bandwidth_external_incoming_gb = GaugeMetricFamily(
+            "ovh_usage_storage_bandwidth_external_incoming_gb",
+            "Storage usage external incoming bandwidth in gb",
             labels=storage_usage_labels,
         )
         self.ovh_usage_storage_bandwidth_external_incoming_price = GaugeMetricFamily(
@@ -95,9 +95,9 @@ class Metrics:
             "Storage usage external incoming bandwidth price",
             labels=storage_usage_labels,
         )
-        self.ovh_usage_storage_bandwidth_internal_incoming_gb_hours = GaugeMetricFamily(
-            "ovh_usage_storage_bandwidth_internal_incoming_gb_hours",
-            "Storage usage external incoming bandwidth in gb x hours",
+        self.ovh_usage_storage_bandwidth_internal_incoming_gb = GaugeMetricFamily(
+            "ovh_usage_storage_bandwidth_internal_incoming_gb",
+            "Storage usage external incoming bandwidth in gb",
             labels=storage_usage_labels,
         )
         self.ovh_usage_storage_bandwidth_internal_incoming_price = GaugeMetricFamily(
@@ -328,13 +328,13 @@ class Metrics:
         yield self.ovh_usage_storage_price
         yield self.ovh_usage_storage_gb_hours
         yield self.ovh_usage_storage_bandwidth_internal_outgoing_price
-        yield self.ovh_usage_storage_bandwidth_internal_outgoing_gb_hours
+        yield self.ovh_usage_storage_bandwidth_internal_outgoing_gb
         yield self.ovh_usage_storage_bandwidth_internal_incoming_price
-        yield self.ovh_usage_storage_bandwidth_internal_incoming_gb_hours
+        yield self.ovh_usage_storage_bandwidth_internal_incoming_gb
         yield self.ovh_usage_storage_bandwidth_external_outgoing_price
-        yield self.ovh_usage_storage_bandwidth_external_outgoing_gb_hours
+        yield self.ovh_usage_storage_bandwidth_external_outgoing_gb
         yield self.ovh_usage_storage_bandwidth_external_incoming_price
-        yield self.ovh_usage_storage_bandwidth_external_incoming_gb_hours
+        yield self.ovh_usage_storage_bandwidth_external_incoming_gb
 
 
 # pylint: disable=too-few-public-methods
