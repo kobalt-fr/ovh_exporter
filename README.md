@@ -138,3 +138,8 @@ docker run --rm \
 ### v0.1 (2023-01-16)
 
 * initial release
+
+### v0.2 (2023-01-17)
+
+* fix login issues
+* inject labels from configuration in metrics
