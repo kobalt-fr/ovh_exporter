@@ -65,7 +65,7 @@ server:
 
 ### Custom labels
 
-Each OVH project can be bound to custom labels:
+Each OVH project/service metrics can be bound to custom prometheus labels:
 
 ```yaml
 services:
@@ -74,6 +74,13 @@ services:
     label1: value1
     label2: value2
 ```
+
+Your OVH project id can be retrieved from URLs in OVH manager, or from
+`/cloud/project` endpoints in OVH API.
+
+If you use `ovh_exporter login` to setup you `consumer_key`, you need to generate
+a new `consumer_key` when you add new projects (as generated `consumer_key` are
+restricted to needed API endpoints).
 
 ### Use environment variables
 
@@ -84,7 +91,8 @@ You can use `${VAR_NAME}` to reference environment variable inside configuration
 You can create both `application_key`, `application_secret` and `consumer_key` at
 https://www.ovh.com/auth/api/createToken.
 
-With an existing `application_key` and `application_secret`, you can obtain a `consumer_key` with the `ovh login` command. It allows to restrict authorized paths and methods strictly to the needed one.
+With an existing `application_key` and `application_secret`, you can obtain a `consumer_key` with the `ovh_exporter login` command. It allows to restrict authorized paths and methods strictly to the needed one
+(defined in [auth.py](src/ovh_exporter/auth.py), `add_rule` calls).
 
 ## Metrics
 
@@ -135,11 +143,11 @@ docker run --rm \
 
 ## History
 
-### v0.1 (2023-01-16)
-
-* initial release
-
 ### v0.2 (2023-01-17)
 
 * fix login issues
 * inject labels from configuration in metrics
+
+### v0.1 (2023-01-16)
+
+* initial release

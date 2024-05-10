@@ -1,0 +1,28 @@
+---
+server:
+  bind_addr: 0.0.0.0
+  port: 9100
+  basic_auth:
+    enabled: false
+  tls:
+    enabled: false
+ovh:
+  # ovh-eu, ovh-ca, ...
+  endpoint: ovh-eu
+  # https://api.us.ovhcloud.com/createApp/ (oauth2-like client_id / client_secret)
+  application_key: xxx
+  application_secret: yyyy
+  # oauth2-like access_token, see `ovh_exporter login` command.
+  consumer_key: zzz
+# One entry by OVH project / service
+# (from GET /cloud/project API endpoint)
+services:
+# Hexadecimal OVH project id (from urls or OVH API)
+- id: aaaaaabbbbbbb
+  labels:
+    environment: production
+    project: hosting
+- id: ccccccddddddd
+  labels:
+    environment: testing
+    project: customer1
