@@ -98,32 +98,35 @@ With an existing `application_key` and `application_secret`, you can obtain a `c
 
 `ovh_exporter` provides data about:
 
-* object storage
+* labels for service and region for all cases
+* object storage : label by type
   * storage consumption / price (gb.hour) (2 metrics)
-  * external / external - inconming / outgoing bandwidth - consumption / price (8 metrics)
-* volumes
+  * external / internal - incoming / outgoing bandwidth - consumption / price (8 metrics)
+* volumes : label by volume_id / type
   * size (gb)
-* quota (current / max)
+* volume quota (current / max)
   * volume size
   * volume backup
   * volume count
   * volume backup count
+* instance quota (current / max)
   * instance count
   * cpu count
   * ram (gb)
+* network quota (current / max)
   * network count
   * network subnet count
   * network floating ip count
   * network gateway count
   * load balancer count
   * key manager count
-* storage
+* storage : labels by container id / name / type
   * size
   * object count
-* instance usage
+* instance usage : labels by instance_id / type / flavor
   * hours
   * price
-* volume
+* volume : labels by volume_id / flavor
   * gb x hours consumption
   * price
 

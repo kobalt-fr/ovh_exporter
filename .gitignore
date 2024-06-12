@@ -10,3 +10,4 @@ config.yaml
 auth.env
 coverage.xml
 temp/
+.ipynb_checkpoints/

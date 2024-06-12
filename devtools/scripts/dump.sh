@@ -7,10 +7,10 @@ set -e
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
 # EPOCH milliseconds
-# 25 avril
-start="1713996000000"
-# 5 mai
-stop="1714860000000"
+# 25 mai
+start="1716641355000"
+# 12 juin
+stop="1718196555000"
 data="$SCRIPTPATH/../temp/data.dump.gz"
 
 if [ ! -f "$data" ]; then
