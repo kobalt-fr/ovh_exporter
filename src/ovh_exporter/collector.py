@@ -54,7 +54,7 @@ class Metrics:
     # pylint: disable=too-many-statements
     def __init__(self, labelnames):
         # Storage
-        storage_usage_labels = ["service_id", "region", "flavor"]
+        storage_usage_labels = ["service_id", "region", "flavor", "storage_name"]
         self.ovh_usage_storage_gb_hours = GaugeMetricFamily(
             "ovh_usage_storage_gb_hours",
             "Storage usage in gb x hours",
@@ -595,6 +595,11 @@ class OvhCollector:
             region = storage["region"]
             hours = storage["stored"]["quantity"]["value"]
             price = storage["stored"]["totalPrice"]
+            if flavor == "pcs":
+                # stats for pcs (swift) object storage are global
+                storage_name = "__all__"
+            else:
+                storage_name = storage["bucketName"]
             if storage.get("incomingBandwidth", None):
                 external_incoming_gb = storage["incomingBandwidth"]["quantity"]["value"]
                 external_incoming_price = storage["incomingBandwidth"]["totalPrice"]
@@ -628,32 +633,32 @@ class OvhCollector:
                 internal_outgoing_gb = 0
                 internal_outgoing_price = 0
             metrics.ovh_usage_storage_gb_hours.add_metric(
-                self._labels(service, [service.id, region, flavor]), hours
+                self._labels(service, [service.id, region, flavor, storage_name]), hours
             )
             metrics.ovh_usage_storage_price.add_metric(
-                self._labels(service, [service.id, region, flavor]), price
+                self._labels(service, [service.id, region, flavor, storage_name]), price
             )
             metrics.ovh_usage_storage_bandwidth_external_incoming_gb.add_metric(
-                self._labels(service, [service.id, region, flavor]), external_incoming_gb
+                self._labels(service, [service.id, region, flavor, storage_name]), external_incoming_gb
             )
             metrics.ovh_usage_storage_bandwidth_external_incoming_price.add_metric(
-                self._labels(service, [service.id, region, flavor]), external_incoming_price
+                self._labels(service, [service.id, region, flavor, storage_name]), external_incoming_price
             )
             metrics.ovh_usage_storage_bandwidth_external_outgoing_gb.add_metric(
-                self._labels(service, [service.id, region, flavor]), external_outgoing_gb
+                self._labels(service, [service.id, region, flavor, storage_name]), external_outgoing_gb
             )
             metrics.ovh_usage_storage_bandwidth_external_outgoing_price.add_metric(
-                self._labels(service, [service.id, region, flavor]), external_outgoing_price
+                self._labels(service, [service.id, region, flavor, storage_name]), external_outgoing_price
             )
             metrics.ovh_usage_storage_bandwidth_internal_incoming_gb.add_metric(
-                self._labels(service, [service.id, region, flavor]), internal_incoming_gb
+                self._labels(service, [service.id, region, flavor, storage_name]), internal_incoming_gb
             )
             metrics.ovh_usage_storage_bandwidth_internal_incoming_price.add_metric(
-                self._labels(service, [service.id, region, flavor]), internal_incoming_price
+                self._labels(service, [service.id, region, flavor, storage_name]), internal_incoming_price
             )
             metrics.ovh_usage_storage_bandwidth_internal_outgoing_gb.add_metric(
-                self._labels(service, [service.id, region, flavor]), internal_outgoing_gb
+                self._labels(service, [service.id, region, flavor, storage_name]), internal_outgoing_gb
             )
             metrics.ovh_usage_storage_bandwidth_internal_outgoing_price.add_metric(
-                self._labels(service, [service.id, region, flavor]), internal_outgoing_price
+                self._labels(service, [service.id, region, flavor, storage_name]), internal_outgoing_price
             )

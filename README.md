@@ -141,10 +141,14 @@ docker run --rm \
   -v $PWD/config.yaml:/app/config.yaml \
   -v $PWD/auth.env:/app/auth.env \
   -v $PWD/certificates:/app/certificates \
-  ovh_exporter
+  ovh_exporter server
 ```
 
 ## History
+
+### v0.3 (2024-10-03)
+
+* fix `ovh_storage_usage_...` duplicate metrics (#1)
 
 ### v0.2 (2023-01-17)
 
