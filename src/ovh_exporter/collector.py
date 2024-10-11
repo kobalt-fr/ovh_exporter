@@ -1,8 +1,8 @@
 """OVH Collector."""
+
 from __future__ import annotations
 
 import typing
-from enum import Enum
 
 from prometheus_client.core import GaugeMetricFamily
 
@@ -13,38 +13,6 @@ if typing.TYPE_CHECKING:
     import ovh
 
     from ovh_exporter.config import Service
-
-class Endpoint(Enum):
-    """API Enpoints."""
-
-    PROJECT = "/cloud/project/{service_id}"
-    QUOTA = "/cloud/project/{service_id}/quota"
-    INSTANCE = "/cloud/project/{service_id}/instance"
-    STORAGE = "/cloud/project/{service_id}/storage"
-    USAGE = "/cloud/project/{service_id}/usage/current"
-    VOLUME = "/cloud/project/{service_id}/volume"
-
-    def __init__(self, url):
-        self.url = url
-
-
-class MetricFamily(Enum):
-    """Metric families selection."""
-
-    PROCESS: tuple[Endpoint] = []
-    GC: tuple[Endpoint] = []
-    PLATFORM: tuple[Endpoint] = []
-    USAGE_VOLUME = (Endpoint.USAGE,)
-    USAGE_STORAGE = (Endpoint.USAGE,)
-    USAGE_INSTANCE = (Endpoint.USAGE,)
-    QUOTA_VOLUME = (Endpoint.QUOTA,)
-    QUOTA_INSTANCE = (Endpoint.USAGE,)
-    QUOTA_NETWORK = (Endpoint.USAGE,)
-    QUOTA_LB = (Endpoint.USAGE,)
-    QUOTA_KEYMANAGER = (Endpoint.USAGE,)
-
-    def __init__(self, endpoints: tuple[Endpoint]):
-        self.endpoints = endpoints
 
 
 # pylint: disable=too-many-instance-attributes,too-few-public-methods
@@ -161,9 +129,7 @@ class Metrics:
         self.ovh_quota_cpu_max_count = GaugeMetricFamily(
             "ovh_quota_cpu_max_count", "CPU max count", labels=labelnames + instance_labels
         )
-        self.ovh_quota_ram_gb = GaugeMetricFamily(
-            "ovh_quota_ram_gb", "RAM count", labels=labelnames + instance_labels
-        )
+        self.ovh_quota_ram_gb = GaugeMetricFamily("ovh_quota_ram_gb", "RAM count", labels=labelnames + instance_labels)
         self.ovh_quota_ram_max_gb = GaugeMetricFamily(
             "ovh_quota_ram_max_gb", "RAM max count", labels=labelnames + instance_labels
         )
@@ -277,9 +243,7 @@ class Metrics:
             labels=labelnames + volume_usage_labels,
         )
         self.ovh_usage_volume_price = GaugeMetricFamily(
-            "ovh_usage_volume_price",
-            "Volume usage price",
-            labels=labelnames + volume_usage_labels
+            "ovh_usage_volume_price", "Volume usage price", labels=labelnames + volume_usage_labels
         )
 
     # pylint: disable=too-many-statements
@@ -352,7 +316,7 @@ class OvhCollector:
             for service in services:
                 service_labelset = set(service.labels.keys())
                 if labelset != service_labelset:
-                    raise Exception("Service label names must be the same for all services")
+                    raise RuntimeError("Service label names must be the same for all services")  # noqa: TRY003,EM101
                 self.labels[service.id] = [service.labels[name] for name in self.labelnames]
 
     def _labels(self, service, labels):
@@ -389,13 +353,16 @@ class OvhCollector:
             try:
                 gauge_value = int(volume["size"])
                 metrics.ovh_volume_size_gb.add_metric(
-                    self._labels(service, [
-                        service.id,
-                        volume["id"],
-                        volume["name"],
-                        volume["region"],
-                        volume["type"],
-                    ]),
+                    self._labels(
+                        service,
+                        [
+                            service.id,
+                            volume["id"],
+                            volume["name"],
+                            volume["region"],
+                            volume["type"],
+                        ],
+                    ),
                     gauge_value,
                 )
             except (TypeError, ValueError):
@@ -516,23 +483,29 @@ class OvhCollector:
         """Collect storage usage information."""
         for storage in storages:
             metrics.ovh_storage_size_bytes.add_metric(
-                self._labels(service, [
-                    service.id,
-                    storage["region"],
-                    storage["id"],
-                    storage["name"],
-                    storage["containerType"],
-                ]),
+                self._labels(
+                    service,
+                    [
+                        service.id,
+                        storage["region"],
+                        storage["id"],
+                        storage["name"],
+                        storage["containerType"],
+                    ],
+                ),
                 storage["storedBytes"],
             )
             metrics.ovh_storage_object_count.add_metric(
-                self._labels(service, [
-                    service.id,
-                    storage["region"],
-                    storage["id"],
-                    storage["name"],
-                    storage["containerType"],
-                ]),
+                self._labels(
+                    service,
+                    [
+                        service.id,
+                        storage["region"],
+                        storage["id"],
+                        storage["name"],
+                        storage["containerType"],
+                    ],
+                ),
                 storage["storedObjects"],
             )
 
@@ -595,11 +568,7 @@ class OvhCollector:
             region = storage["region"]
             hours = storage["stored"]["quantity"]["value"]
             price = storage["stored"]["totalPrice"]
-            if flavor == "pcs":
-                # stats for pcs (swift) object storage are global
-                storage_name = "__all__"
-            else:
-                storage_name = storage["bucketName"]
+            storage_name = "__all__" if flavor == "pcs" else storage["bucketName"]
             if storage.get("incomingBandwidth", None):
                 external_incoming_gb = storage["incomingBandwidth"]["quantity"]["value"]
                 external_incoming_price = storage["incomingBandwidth"]["totalPrice"]
@@ -613,22 +582,14 @@ class OvhCollector:
                 external_outgoing_gb = 0
                 external_outgoing_price = 0
             if storage.get("incomingInternalBandwidth", None):
-                internal_incoming_gb = storage["incomingInternalBandwidth"]["quantity"][
-                    "value"
-                ]
-                internal_incoming_price = storage["incomingInternalBandwidth"][
-                    "totalPrice"
-                ]
+                internal_incoming_gb = storage["incomingInternalBandwidth"]["quantity"]["value"]
+                internal_incoming_price = storage["incomingInternalBandwidth"]["totalPrice"]
             else:
                 internal_incoming_gb = 0
                 internal_incoming_price = 0
             if storage.get("outgoingInternalBandwidth", None):
-                internal_outgoing_gb = storage["outgoingInternalBandwidth"]["quantity"][
-                    "value"
-                ]
-                internal_outgoing_price = storage["outgoingInternalBandwidth"][
-                    "totalPrice"
-                ]
+                internal_outgoing_gb = storage["outgoingInternalBandwidth"]["quantity"]["value"]
+                internal_outgoing_price = storage["outgoingInternalBandwidth"]["totalPrice"]
             else:
                 internal_outgoing_gb = 0
                 internal_outgoing_price = 0

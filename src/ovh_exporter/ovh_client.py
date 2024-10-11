@@ -1,4 +1,5 @@
 """OVH API client."""
+
 import ovh
 
 from ovh_exporter.config import OvhAccount

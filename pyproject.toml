@@ -49,55 +49,52 @@ ovh_exporter = "ovh_exporter.cli:main"
 path = "src/ovh_exporter/__init__.py"
 
 
-[tool.hatch.envs.pip-review]
-type = "container"
-python = "3.8"
+[tool.hatch.envs.default]
 dependencies = [
-  "pip-review"
+  "coverage[toml]>=6.5",
+  "pytest",
+]
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "coverage run -m pytest {args:tests}"
+cov-report = [
+  "- coverage combine",
+  "coverage report",
+]
+cov = [
+  "test-cov",
+  "cov-report",
+]
+[tool.coverage.run]
+source_pkgs = ["ovh_exporter", "tests"]
+branch = true
+parallel = true
+omit = []
+[tool.coverage.paths]
+ovh_exporter = ["src/ovh_exporter"]
+tests = ["tests"]
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
 ]
 
-[tool.hatch.envs.pip-review.scripts]
-dev-pip-review = "pip-review"
 
-
-[tool.hatch.envs.dev]
+[tool.hatch.envs.types]
 dependencies = [
   "types-requests",
   "types-PyYAML",
   "types-jsonschema",
-  "mypy",
-  "rope",
-  "ruff",
-  "ipdb",
-  "deptry"
+  "mypy"
 ]
-
-
-[tool.hatch.envs.test]
-type = "container"
-dependencies = [
-  "pytest",
-  "pytest-cov"
-]
-
-[[tool.hatch.envs.test.matrix]]
-python = ["3.8", "3.12"]
-
-
-[tool.pytest.ini_options]
-minversion = "7.1"
-addopts = "--cov-config .coveragerc --cov-report=xml --cov=."
-testpaths = [
-    "tests"
-]
-
-
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/}"
 [tool.mypy]
 python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 files = "src/ovh_exporter/**/*.py"
-
 [[tool.mypy.overrides]]
 module = [
   "path_dict",
@@ -107,7 +104,3 @@ module = [
   "gunicorn"
 ]
 ignore_missing_imports = true
-
-
-[tool.rope]
-split_imports = true

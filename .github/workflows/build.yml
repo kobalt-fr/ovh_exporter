@@ -1,20 +1,49 @@
 name: Build
 
-on: workflow_call
+on:
+  - push
+  - workflow_dispatch
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
     timeout-minutes: 5
     steps:
     - name: checkout
       uses: actions/checkout@v4
+    - name: setup
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y pipx buildah
+        pipx install hatch
     - name: build
       run: |
-        apt-get update && apt-get install -y pipx
-        pipx install hatch
         alias hatch=~/.local/bin/hatch
         hatch fmt --check
         hatch run types:check
         hatch run test
         hatch build
+
+    - name: "docker - setup"
+      uses: docker/setup-buildx-action@v3
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+    - name: "docker - build"
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: ${{ github.event_name == 'workflow_dispatch' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}

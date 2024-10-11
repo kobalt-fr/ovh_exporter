@@ -1,4 +1,5 @@
 """OVH authentication utility."""
+
 import datetime
 import fileinput
 import http.server
@@ -34,14 +35,12 @@ def login(config: Config):
     pending_request = req.request("http://localhost:8000/")
     if os.path.exists("/usr/bin/xdg-open"):
         subprocess.check_call(["/usr/bin/xdg-open", pending_request["validationUrl"]])
-        print(f"Perform login in opened browser ({pending_request['validationUrl']})") # noqa: T201
+        print(f"Perform login in opened browser ({pending_request['validationUrl']})")  # noqa: T201
     else:
-        print(f"Browse and authorize access with URL {pending_request['validationUrl']}") # noqa: T201
+        print(f"Browse and authorize access with URL {pending_request['validationUrl']}")  # noqa: T201
     log.debug("HTTP server starting.")
     callback_called = threading.Semaphore(1)
-    httpd = http.server.HTTPServer(
-        ("", 8000), CallbackHttpRequestHanderFactory(callback_called)
-    )
+    httpd = http.server.HTTPServer(("", 8000), CallbackHttpRequestHanderFactory(callback_called))
     # pylint: disable=consider-using-with
     callback_called.acquire()
 
@@ -60,7 +59,7 @@ def login(config: Config):
     httpd.shutdown()
     log.debug("HTTP server stopped.")
     consumer_key = pending_request["consumerKey"]
-    print(f"Login success; consumerKey={consumer_key}") # noqa: T201
+    print(f"Login success; consumerKey={consumer_key}")  # noqa: T201
     if config.env_file:
         update_env_file(config.env_file, consumer_key)
 
@@ -79,16 +78,14 @@ def update_env_file(env_file, consumer_key):
             # add an 'updated on' comment
             if f.isfirstline():
                 update_str = datetime.datetime.now(tz=datetime.UTC).strftime("%Y-%m-%d %H:%M:%SZ")
-                print(f"# updated on {update_str}") # noqa: T201
+                print(f"# updated on {update_str}")  # noqa: T201
             # ignore existing 'updated on' line
             if re.match(r"# updated on .*", line):
                 continue
             # replace OVH_CONSUMER_KEY= definition, else keep entry
-            overwrite_line = re.sub(
-                r"(OVH_CONSUMER_KEY *= *)(.*)", f"OVH_CONSUMER_KEY={consumer_key}", line
-            )
-            print(overwrite_line) # noqa: T201
-    print("auth.env updated.") # noqa: T201
+            overwrite_line = re.sub(r"(OVH_CONSUMER_KEY *= *)(.*)", f"OVH_CONSUMER_KEY={consumer_key}", line)
+            print(overwrite_line)  # noqa: T201
+    print("auth.env updated.")  # noqa: T201
 
 
 # pylint: disable=too-few-public-methods
@@ -114,15 +111,13 @@ class CallbackHttpRequestHandler(http.server.BaseHTTPRequestHandler):
         super().__init__(*args, **override)
 
     # pylint: disable=invalid-name
-    def do_GET(self): # noqa: N802
+    def do_GET(self):  # noqa: N802
         """Target for redirect url.
 
         When response is received, we consider consumerKey is validated."""
         self.send_response(http.server.HTTPStatus.OK)
         self.send_header("Content-Type", "text/plain;charset=utf-8")
         self.end_headers()
-        self.wfile.writelines(
-            [b"Login success! Go back to your terminal."]
-        )
+        self.wfile.writelines([b"Login success! Go back to your terminal."])
         self._semaphore.release()
         log.debug("HTTP server - callback notification sent.")

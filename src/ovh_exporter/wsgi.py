@@ -1,4 +1,5 @@
 """WSGI utilities."""
+
 import base64
 import binascii
 
@@ -11,8 +12,8 @@ class StandaloneApplication(gunicorn.app.base.BaseApplication):
     # 'init' and 'load' methods are implemented by WSGIApplication.
     # pylint: disable=abstract-method
     """Gunicorn wrapper."""
-    def __init__(self, app, bind_addr="127.0.0.1", bind_port=9100,
-                 cert_file=None, key_file=None):
+
+    def __init__(self, app, bind_addr="127.0.0.1", bind_port=9100, cert_file=None, key_file=None):
         self.cert_file = cert_file
         self.key_file = key_file
         self.bind_addr = bind_addr
@@ -38,6 +39,7 @@ class StandaloneApplication(gunicorn.app.base.BaseApplication):
 
 class BasicAuthMiddleware:
     """Basic Auth WSGI middleware"""
+
     def __init__(self, app, login, password, realm="ovh_exporter"):
         self.app = app
         self.realm = realm
@@ -46,9 +48,7 @@ class BasicAuthMiddleware:
 
     def __call__(self, environ, start_response):
         if not self._check_auth(environ):
-            start_response(
-                "401 Unauthorized",
-                [("WWW-Authenticate", f"Basic realm={self.realm}, charset=\"UTF-8\"")])
+            start_response("401 Unauthorized", [("WWW-Authenticate", f'Basic realm={self.realm}, charset="UTF-8"')])
             return []
         return self.app(environ, start_response)
 
@@ -66,21 +66,20 @@ class BasicAuthMiddleware:
             log.debug("Authorization is not a basic authentication.")
             return False
         try:
-             # Strip 'Basic '
-            authorization_base64 = authorization_header[6:].encode('ascii')
-            auth = base64.decodebytes(authorization_base64).decode('utf-8')
+            # Strip 'Basic '
+            authorization_base64 = authorization_header[6:].encode("ascii")
+            auth = base64.decodebytes(authorization_base64).decode("utf-8")
             separator = auth.find(":")
             if separator != -1:
-                return (auth[0:separator], auth[separator+1:])
-            else: # noqa: RET505
+                return (auth[0:separator], auth[separator + 1 :])
+            else:  # noqa: RET505
                 log.debug("Decoded authorization cannot be parsed.")
                 return False
         except binascii.Error:
             log.debug("Authorization is not a basic authentication.")
             return False
 
-def run_server(app, bind_addr="127.0.0.1", bind_port=9100,
-               cert_file=None, key_file=None):
+
+def run_server(app, bind_addr="127.0.0.1", bind_port=9100, cert_file=None, key_file=None):
     """Start a WSGI server"""
-    StandaloneApplication(app, bind_addr, bind_port,
-                          cert_file, key_file).run()
+    StandaloneApplication(app, bind_addr, bind_port, cert_file, key_file).run()

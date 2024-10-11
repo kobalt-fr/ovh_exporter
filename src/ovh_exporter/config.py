@@ -1,4 +1,5 @@
 """Configuration loading utilities."""
+
 from __future__ import annotations
 
 import os
@@ -117,23 +118,26 @@ properties:
         description: Basic authentication password
 """
 
-REGISTRY: Registry = Registry().with_contents([
-    ("urn:Config", yaml.safe_load(CONFIG_SCHEMA)),
-    ("urn:OvhAccount", yaml.safe_load(OVH_ACCOUNT_SCHEMA)),
-    ("urn:Service", yaml.safe_load(SERVICE_SCHEMA)),
-    ("urn:Server", yaml.safe_load(SERVER_SCHEMA))
-])
+REGISTRY: Registry = Registry().with_contents(
+    [
+        ("urn:Config", yaml.safe_load(CONFIG_SCHEMA)),
+        ("urn:OvhAccount", yaml.safe_load(OVH_ACCOUNT_SCHEMA)),
+        ("urn:Service", yaml.safe_load(SERVICE_SCHEMA)),
+        ("urn:Server", yaml.safe_load(SERVER_SCHEMA)),
+    ]
+)
 
 
 # pylint: disable=too-few-public-methods
 class OvhAccount:
     """OVH account configuration."""
+
     def __init__(
         self,
         endpoint: str,
         application_key: str,
         application_secret: str,
-        consumer_key: str|None,
+        consumer_key: str | None,
     ):
         self.endpoint = endpoint
         self.application_key = application_key
@@ -143,10 +147,7 @@ class OvhAccount:
     @staticmethod
     def load(config_dict):
         """Load configuration from a configuration dict."""
-        validator = Draft202012Validator(
-            REGISTRY.contents("urn:OvhAccount"),
-            registry=REGISTRY
-        )
+        validator = Draft202012Validator(REGISTRY.contents("urn:OvhAccount"), registry=REGISTRY)
         validator.validate(config_dict)
         return OvhAccount(
             config_dict["endpoint"],
@@ -158,11 +159,13 @@ class OvhAccount:
 
 class Tls:
     """TLS options."""
+
     def __init__(
-            self,
-            enabled: bool, # noqa: FBT001
-            cert_file: str|None,
-            key_file: str|None):
+        self,
+        enabled: bool,  # noqa: FBT001
+        cert_file: str | None,
+        key_file: str | None,
+    ):
         self.enabled = enabled
         self.cert_file = cert_file
         self.key_file = key_file
@@ -171,20 +174,18 @@ class Tls:
     def load(config_dict):
         """Load configuration from dict."""
         enabled = config_dict.get("enabled", False)
-        return Tls(
-            enabled,
-            config_dict.get("cert_file", None),
-            config_dict.get("key_file", None)
-        )
+        return Tls(enabled, config_dict.get("cert_file", None), config_dict.get("key_file", None))
 
 
 class BasicAuth:
     """Basic authentication options."""
+
     def __init__(
-            self,
-            enabled: bool, # noqa: FBT001
-            login: str|None,
-            password: str|None):
+        self,
+        enabled: bool,  # noqa: FBT001
+        login: str | None,
+        password: str | None,
+    ):
         self.enabled = enabled
         self.login = login
         self.password = password
@@ -193,21 +194,13 @@ class BasicAuth:
     def load(config_dict):
         """Load configuration from dict."""
         enabled = config_dict.get("enabled", False)
-        return BasicAuth(
-            enabled,
-            config_dict.get("login", None),
-            config_dict.get("password", None)
-        )
+        return BasicAuth(enabled, config_dict.get("login", None), config_dict.get("password", None))
 
 
 class Server:
     """Server configuration."""
-    def __init__(
-            self,
-            bind_addr: str,
-            port: int,
-            tls: Tls,
-            basic_auth: BasicAuth):
+
+    def __init__(self, bind_addr: str, port: int, tls: Tls, basic_auth: BasicAuth):
         self.port = port
         self.bind_addr = bind_addr
         self.tls = tls
@@ -225,10 +218,8 @@ class Server:
 
 class Service:
     """Configuration."""
-    def __init__(
-            self,
-            field_id: str,
-            labels: typing.Mapping[str, str]):
+
+    def __init__(self, field_id: str, labels: typing.Mapping[str, str]):
         self.id = field_id
         self.labels = labels
 
@@ -240,12 +231,8 @@ class Service:
 
 class Config:
     """Configuration."""
-    def __init__(
-            self,
-            ovh: OvhAccount,
-            server: Server,
-            env_file: str,
-            services: list[Service]):
+
+    def __init__(self, ovh: OvhAccount, server: Server, env_file: str, services: list[Service]):
         self.ovh = ovh
         self.server = server
         self.env_file = env_file
@@ -254,28 +241,17 @@ class Config:
     @staticmethod
     def load(config_dict):
         """Load whole configuration."""
-        validator = Draft202012Validator(
-            REGISTRY.contents("urn:Config"),
-            registry=REGISTRY
-        )
+        validator = Draft202012Validator(REGISTRY.contents("urn:Config"), registry=REGISTRY)
         validator.validate(config_dict)
         ovh = OvhAccount.load(config_dict.get("ovh"))
         server = Server.load(config_dict.get("server", {}))
-        services = [
-            Service.load(i)
-            for i in config_dict.get("services", [])]
-        return Config(ovh,
-                      server,
-                      config_dict.get("env_file", None),
-                      services)
+        services = [Service.load(i) for i in config_dict.get("services", [])]
+        return Config(ovh, server, config_dict.get("env_file", None), services)
 
 
 def validate(config_dict):
     """Validation configuration."""
-    validator = Draft202012Validator(
-        REGISTRY.contents("urn:Config"),
-        registry=REGISTRY
-    )
+    validator = Draft202012Validator(REGISTRY.contents("urn:Config"), registry=REGISTRY)
     validator.validate(config_dict)
 
 
